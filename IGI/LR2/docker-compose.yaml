@@ -1,0 +1,26 @@
+version: '3.8'
+networks:
+  mynetwork:
+    driver: bridge
+volumes:
+  dbdata:    
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "YourStrongPassword"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - mynetwork
+    volumes:
+      - dbdata:/var/opt/mssql  
+  app:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "5000:80"
+    networks:
+      - mynetwork  
