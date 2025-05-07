@@ -1,0 +1,20 @@
+Total sentences: 14
+Narrative: 8, Interrogative: 3, Imperative: 3
+Avg sentence length: 29.64
+Avg word length: 4.37
+Smileys: 2
+Sentences with apostrophes:
+Welcome to today's meeting at 14:30.
+Let's start with Mary's presentation, shall we?
+She'll discuss the project's timeline.
+Don't forget to smile :-) and enjoy the process.
+Here's a fun fact: the sky is blue because of light scattering.
+Time management is key, so let's wrap up by 16:00.
+Some tasks are tricky, like the one Anna's handling.
+Let's schedule the next meeting soon, okay?
+Text with time replaced:
+Hello everyone! Welcome to today's meeting at (TBD). Let's start with Mary's presentation, shall we? She'll discuss the project's timeline. The meeting might end at (TBD). Don't forget to smile :-) and enjoy the process. Here's a fun fact: the sky is blue because of light scattering. Are you ready to dive in? I saw a smiley ;-)) on the board! Time management is key, so let's wrap up by (TBD). Great job, team! Some tasks are tricky, like the one Anna's handling. By the way, I love to play piano every evening. Let's schedule the next meeting soon, okay?
+Words ending with vowel: 53
+Avg word length: 4
+Words: ['with', 'fact', 'blue', 'dive', 'time', 'wrap', 'team', 'some', 'like', 'love', 'play', 'next', 'soon', 'okay']
+Every fifth word: ["today's", 'with', "she'll", 'the', "don't", 'enjoy', 'fun', 'blue', 'are', 'in', 'on', 'is', 'up', 'some', 'the', 'the', 'play', 'schedule', 'okay']
