@@ -1,0 +1,45 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Список товаров
+{% endblock %}
+
+{% block content %}
+<h2>Товары</h2>
+
+<!-- Список товаров -->
+{% if products %}
+    <table class="product-table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Тип</th>
+                <th>Описание</th>
+                <th>Цена</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.product_type.name }}</td>
+                <td>{{ product.description|truncatewords:10 }}</td>
+                <td>{{ product.price }} BYN</td>
+                <td>
+                    <a href="{% url 'delivery_app:product_detail' product.id %}">Подробнее</a>
+                    <form method="post" action="{% url 'delivery_app:add_to_cart' product.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="1" min="1" style="width: 60px; padding: 5px;">
+                        <button type="submit">Добавить в корзину</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Товары не найдены.</p>
+{% endif %}
+
+{% endblock %}

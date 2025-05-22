@@ -1,0 +1,109 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Оформление заказа
+{% endblock %}
+
+{% block content %}
+<h2>Оформление заказа</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if cart_items %}
+    <h3>Содержимое корзины:</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Количество</th>
+                <th>Цена за единицу</th>
+                <th>Общая стоимость</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.product.price }} BYN</td>
+                <td>{{ item.total }} BYN</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>Общая сумма: {{ total }} BYN</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="promo_code">Промокод (опционально):</label>
+        <input type="text" name="promo_code" id="promo_code" placeholder="Введите промокод">
+        <br>
+        <label for="delivery_method">Способ доставки:</label>
+        <select name="delivery_method" id="delivery_method" onchange="toggleDeliveryFields()">
+            {% for method_value, method_label in delivery_methods %}
+                <option value="{{ method_value }}" {% if selected_delivery_method == method_value %}selected{% endif %}>{{ method_label }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <div id="pickup_point_div" style="display: {% if selected_delivery_method == 'pickup' %}block{% else %}none{% endif %};">
+            <label for="pickup_point">Выберите точку самовывоза:</label>
+            <select name="pickup_point" id="pickup_point">
+                <option value="">Не выбрано</option>
+                {% for point in pickup_points %}
+                    <option value="{{ point.id }}" {% if selected_pickup_point == point.id|stringformat:'s' %}selected{% endif %}>{{ point.name }} - {{ point.address }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="delivery_address_div" style="display: {% if selected_delivery_method == 'courier' %}block{% else %}none{% endif %};">
+            <label for="delivery_address">Адрес доставки:</label>
+            <input type="text" name="delivery_address" id="delivery_address" value="{{ delivery_address }}" placeholder="Введите адрес доставки">
+        </div>
+        <br>
+        <label for="employee">Выберите сотрудника (опционально):</label>
+        <select name="employee" id="employee">
+            <option value="">Не выбирать</option>
+            {% for employee in employees %}
+                <option value="{{ employee.id }}">{{ employee.user.username }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Оформить заказ</button>
+    </form>
+
+    <script>
+        function toggleDeliveryFields() {
+            var deliveryMethod = document.getElementById('delivery_method').value;
+            var pickupPointDiv = document.getElementById('pickup_point_div');
+            var deliveryAddressDiv = document.getElementById('delivery_address_div');
+            if (deliveryMethod === 'pickup') {
+                pickupPointDiv.style.display = 'block';
+                deliveryAddressDiv.style.display = 'none';
+            } else {
+                pickupPointDiv.style.display = 'none';
+                deliveryAddressDiv.style.display = 'block';
+            }
+        }
+    </script>
+{% else %}
+    <p>Корзина пуста.</p>
+{% endif %}
+
+<h3>Календарь на {{ current_date|slice:"3:10" }}</h3>
+<table border="1">
+    {% for week in calendar %}
+    <tr>
+        {% for day in week %}
+        <td{% if day == 0 %} class="empty"{% endif %}>
+            {{ day|default:"" }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

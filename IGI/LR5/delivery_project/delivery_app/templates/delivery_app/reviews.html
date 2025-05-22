@@ -1,0 +1,22 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Отзывы
+{% endblock %}
+
+{% block content %}
+<h2>Отзывы</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+{% if user.is_authenticated %}
+    <a href="{% url 'delivery_app:add_review' %}"><button>Добавить отзыв</button></a>
+{% else %}
+    <a href="{% url 'delivery_app:login' %}"><button>Добавить отзыв (войдите)</button></a>
+{% endif %}
+{% for review in reviews %}
+    <h3>{{ review.user.username }} (Оценка: {{ review.rating }})</h3>
+    <p>{{ review.text }}</p>
+    <p>Добавлено: {{ review.created_date|date:'d/m/Y' }}</p>
+{% empty %}
+    <p>Отзывов пока нет.</p>
+{% endfor %}
+{% endblock %}

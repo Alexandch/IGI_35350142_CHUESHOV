@@ -1,0 +1,17 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Вакансии
+{% endblock %}
+
+{% block content %}
+<h2>Вакансии</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+{% for vacancy in vacancies %}
+    <h3>{{ vacancy.title }}</h3>
+    <p>{{ vacancy.description }}</p>
+    <p>Добавлено: {{ vacancy.created_date|date:'d/m/Y' }}</p>
+{% empty %}
+    <p>Вакансий пока нет.</p>
+{% endfor %}
+{% endblock %}

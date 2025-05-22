@@ -1,0 +1,44 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+Главная
+{% endblock %}
+
+{% block content %}
+<h2>Добро пожаловать!</h2>
+<p>Дата: {% if current_date %}{{ current_date|date:"d/m/Y" }}{% else %}N/A{% endif %} | Временная зона: {% if timezone %}{{ timezone }}{% else %}N/A{% endif %}</p>
+
+<h3>Погода в {{ weather_data.city }}</h3>
+{% if weather_data.temperature != 'N/A' and weather_data.description != 'N/A' %}
+    <p>Температура: {{ weather_data.temperature }}°C</p>
+    <p>Описание: {{ weather_data.description }}</p>
+{% else %}
+    <p>Не удалось получить данные о погоде. Проверьте логи: {{ weather_data }}</p>
+{% endif %}
+
+<h3>Курсы валют (BYN)</h3>
+{% if exchange_data.usd != 'N/A' and exchange_data.eur != 'N/A' %}
+    <p>USD: {{ exchange_data.usd|default:'N/A' }}</p>
+    <p>EUR: {{ exchange_data.eur|default:'N/A' }}</p>
+{% else %}
+    <p>Не удалось получить данные о курсах валют. Проверьте логи: {{ exchange_data }}</p>
+{% endif %}
+
+<h3>Календарь на {% if current_date %}{{ current_date|date:"m/Y" }}{% else %}N/A{% endif %}</h3>
+<table class="calendar-table">
+    {% if calendar %}
+        {% for week in calendar %}
+        <tr>
+            {% for day in week %}
+            <td{% if day == 0 %} class="empty"{% endif %}>
+                {{ day|default:"" }}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    {% else %}
+        <tr><td>Ошибка загрузки календаря. Проверьте логи.</td></tr>
+    {% endif %}
+</table>
+{% endblock %}

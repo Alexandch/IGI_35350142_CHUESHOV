@@ -1,0 +1,16 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Добавить отзыв
+{% endblock %}
+
+{% block content %}
+<h2>Добавить отзыв</h2>
+<form method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <button type="submit">Отправить</button>
+</form>
+{% endblock %}

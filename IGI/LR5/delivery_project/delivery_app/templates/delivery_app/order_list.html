@@ -1,0 +1,50 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Мои заказы
+{% endblock %}
+
+{% block content %}
+<h2>Мои заказы</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+{% if orders %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата заказа</th>
+                <th>Статус</th>
+                <th>Общая стоимость</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.date_ordered|date:'d/m/Y' }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.total_cost|floatformat:2 }} BYN</td>
+                <td><a href="{% url 'delivery_app:order_detail' order.id %}">Подробнее</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>У вас нет заказов.</p>
+{% endif %}
+
+<h3>Календарь на {{ current_date|slice:"3:10" }}</h3>
+<table border="1">
+    {% for week in calendar %}
+    <tr>
+        {% for day in week %}
+        <td{% if day == 0 %} class="empty"{% endif %}>
+            {{ day|default:"" }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

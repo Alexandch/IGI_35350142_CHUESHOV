@@ -1,0 +1,17 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Словарь терминов
+{% endblock %}
+
+{% block content %}
+<h2>Словарь терминов</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+{% for faq in faqs %}
+    <h3>{{ faq.question }}</h3>
+    <p>{{ faq.answer }}</p>
+    <p>Добавлено: {{ faq.added_date|date:'d/m/Y' }}</p>
+{% empty %}
+    <p>Вопросов пока нет.</p>
+{% endfor %}
+{% endblock %}

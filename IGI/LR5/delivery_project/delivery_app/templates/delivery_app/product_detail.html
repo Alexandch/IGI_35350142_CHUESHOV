@@ -1,0 +1,12 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+{{ product.name }}
+{% endblock %}
+
+{% block content %}
+<h2>{{ product.name }}</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+<p>Цена: {{ product.price }} BYN</p>
+<p>Тип: {{ product.product_type.name }}</p>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Редактировать заказ #{{ order.id }}
+{% endblock %}
+
+{% block content %}
+<h2>Редактировать заказ #{{ order.id }}</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label for="status">Статус:</label>
+    <select name="status" id="status">
+        {% for value, label in order.STATUS_CHOICES %}
+            <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+
+    <h3>Товары:</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Товар</th>
+                <th>Цена</th>
+                <th>Единица измерения</th>
+                <th>Тип</th>
+                <th>Количество</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.unit_of_measurement }}</td>
+                <td>{{ product.product_type.name }}</td>
+                <td>
+                    <input type="number" name="quantity_{{ product.id }}" value="{% for item in order.orderitem_set.all %}{% if item.product.id == product.id %}{{ item.quantity }}{% endif %}{% endfor %}" min="0" step="0.1">
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button type="submit">Сохранить изменения</button>
+</form>
+
+<h3>Календарь на {{ current_date|slice:"3:10" }}</h3>
+<table border="1">
+    {% for week in calendar %}
+    <tr>
+        {% for day in week %}
+        <td{% if day == 0 %} class="empty"{% endif %}>
+            {{ day|default:"" }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

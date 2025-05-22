@@ -1,0 +1,22 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Промокоды
+{% endblock %}
+
+{% block content %}
+<h2>Промокоды</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+<h3>Действующие промокоды</h3>
+{% for promo in active_promocodes %}
+    <p>{{ promo.code }} (Скидка: {{ promo.discount }}%, Действителен до: {{ promo.valid_to|date:'d/m/Y' }})</p>
+{% empty %}
+    <p>Действующих промокодов нет.</p>
+{% endfor %}
+<h3>Архив промокодов</h3>
+{% for promo in archived_promocodes %}
+    <p>{{ promo.code }} (Скидка: {{ promo.discount }}%, Истёк: {{ promo.valid_to|date:'d/m/Y' }})</p>
+{% empty %}
+    <p>Архивных промокодов нет.</p>
+{% endfor %}
+{% endblock %}
