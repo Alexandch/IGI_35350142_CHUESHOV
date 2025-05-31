@@ -1,4 +1,5 @@
 {% extends "delivery_app/base.html" %}
+{% load static %}
 
 {% block title %}
 О компании
@@ -9,10 +10,8 @@
 <p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
 {% if company_info %}
     <h3>{{ company_info.name }}</h3>
+    <img src="{% static 'delivery_app/images/image.about.jpg' %}" style="max-width: 800px;">
     <p>{{ company_info.description }}</p>
-    {% if company_info.logo %}
-        <img src="{{ company_info.logo.url }}" alt="Логотип компании" style="max-width: 200px;">
-    {% endif %}
 {% else %}
     <p>Информация о компании отсутствует.</p>
 {% endif %}

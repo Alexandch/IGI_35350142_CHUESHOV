@@ -1,4 +1,5 @@
 {% extends "delivery_app/base.html" %}
+{% load static %}
 
 {% block title %}
 Новости
@@ -7,13 +8,85 @@
 {% block content %}
 <h2>Новости</h2>
 <p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
 {% for article in articles %}
-    <h3>{{ article.title }}</h3>
-    <p>{{ article.summary }}</p>
-    {% if article.image %}
-        <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 200px;">
-    {% endif %}
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>{{ article.title }}</h3>
+        <p><small>{{ article.date|date:"d.m.Y" }}</small></p>
+        <p>{{ article.summary }}</p>
+        {% if article.image %}
+            <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px;">
+        {% endif %}
+    </div>
 {% empty %}
     <p>Новостей пока нет.</p>
 {% endfor %}
+
+<!-- Если articles не переданы, показываем тестовые новости -->
+{% if not articles %}
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Запуск новой службы доставки</h3>
+        <p><small>15.05.2023</small></p>
+        <p>Мы рады сообщить о запуске нашей новой службы доставки в пределах города. Теперь мы доставляем ещё быстрее!</p>
+        <img src="{% static 'delivery_app/images/image.about.jpg' %}" alt="Доставка" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Новые тарифы на доставку</h3>
+        <p><small>10.05.2023</small></p>
+        <p>С 1 июня вводятся новые экономичные тарифы на доставку для постоянных клиентов.</p>
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Расширение зоны покрытия</h3>
+        <p><small>05.05.2023</small></p>
+        <p>Теперь наша служба доставки работает в 5 новых районах города.</p>
+        <img src="{% static 'delivery_app/images/image.about.jpg' %}" alt="Карта доставки" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Акция для новых клиентов</h3>
+        <p><small>28.04.2023</small></p>
+        <p>Первая доставка бесплатно для всех новых клиентов в течение мая!</p>
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Новое мобильное приложение</h3>
+        <p><small>20.04.2023</small></p>
+        <p>Теперь вы можете заказывать доставку через наше новое мобильное приложение.</p>
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Партнерство с ресторанами</h3>
+        <p><small>15.04.2023</small></p>
+        <p>Мы заключили партнерские соглашения с 10 новыми ресторанами города.</p>
+        <img src="{% static 'delivery_app/images/image.about.jpg' %}" alt="Ресторан" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Экспресс-доставка за 30 минут</h3>
+        <p><small>10.04.2023</small></p>
+        <p>Теперь в центре города доступна экспресс-доставка за 30 минут или бесплатно!</p>
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Новый складской комплекс</h3>
+        <p><small>05.04.2023</small></p>
+        <p>Мы открыли новый складской комплекс, что позволит ускорить обработку заказов.</p>
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Экологичная упаковка</h3>
+        <p><small>01.04.2023</small></p>
+        <p>Переходим на экологичную упаковку - теперь все наши пакеты биоразлагаемые.</p>
+        <img src="{% static 'delivery_app/images/image.about.jpg' %}" alt="Эко упаковка" style="max-width: 200px; border: 1px solid #ddd; border-radius: 4px;">
+    </div>
+
+    <div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Рекордное количество доставок</h3>
+        <p><small>25.03.2023</small></p>
+        <p>В марте мы установили новый рекорд - 10,000 успешных доставок!</p>
+    </div>
+{% endif %}
+
 {% endblock %}

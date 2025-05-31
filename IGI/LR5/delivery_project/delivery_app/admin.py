@@ -4,9 +4,10 @@ from .models import FAQ, Article, CompanyInfo, Employee, Client, Manufacturer, P
 # Регистрация модели Employee
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'position', 'date_of_birth')
-    search_fields = ('user__username', 'position')
+    list_display = ('user', 'position', 'date_of_birth', 'phone')  
+    search_fields = ('user__username', 'position', 'phone')
     list_filter = ('position',)
+    fields = ('user', 'date_of_birth', 'position', 'phone', 'photo')  
 
 # Регистрация модели Client
 @admin.register(Client)
@@ -24,9 +25,10 @@ class ProductTypeAdmin(admin.ModelAdmin):
 # Регистрация модели Product
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'price', 'unit_of_measurement', 'product_type')
+    list_display = ('name', 'price', 'unit_of_measurement', 'product_type', 'stock')
     search_fields = ('name',)
     list_filter = ('product_type', 'unit_of_measurement')
+    fields = ('name', 'price', 'unit_of_measurement', 'product_type', 'description', 'manufacturer', 'weight', 'stock', 'image')  # Добавляем image
 
 # Встроенное редактирование OrderItem в Order
 class OrderItemInline(admin.TabularInline):

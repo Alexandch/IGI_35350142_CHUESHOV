@@ -1,15 +1,32 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Client, Order, OrderItem, Product, Review
+from .models import Client, Order, OrderItem, Product, Review, validate_age
 from django.utils import timezone
 import re
 
 # Кастомная форма регистрации пользователя
 class CustomUserCreationForm(UserCreationForm):
+    date_of_birth = forms.DateField(
+        label="Дата рождения",
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        validators=[validate_age],
+        help_text="Укажите вашу дату рождения (должно быть 18+)"
+    )
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2')
+        fields = ('username', 'email', 'password1', 'password2', 'date_of_birth')
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone', '')
+        if not re.match(r'^\+375\s\(29\)\s\d{3}-\d{2}-\d{2}$', phone):
+            raise forms.ValidationError("Формат номера: +375 (29) XXX-XX-XX")
+        return phone
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = True  # Делаем email обязательным
 
 # Форма для клиента
 class ClientForm(forms.ModelForm):

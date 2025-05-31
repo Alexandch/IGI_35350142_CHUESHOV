@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils import timezone
+from imagekit.models import ProcessedImageField
+from imagekit.processors import ResizeToFit
 import re
 
 # Валидатор возраста (18+)
@@ -24,6 +26,7 @@ class Employee(models.Model):
     date_of_birth = models.DateField(validators=[validate_age])
     position = models.CharField(max_length=100)
     photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)
+    phone = models.CharField(max_length=20, validators=[validate_phone], blank=True, help_text="Формат: +375 (29) XXX-XX-XX")  # Новое поле
 
     def __str__(self):
         return self.user.username
@@ -66,7 +69,8 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     manufacturer = models.ForeignKey(Manufacturer, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     weight = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('1.00'), help_text="Вес в кг")
-    stock = models.PositiveIntegerField(default=0, help_text="Количество на складе")  # Добавляем остатки
+    stock = models.PositiveIntegerField(default=0, help_text="Количество на складе") 
+    image = models.ImageField(upload_to='products/', blank=True, null=True, help_text="Изображение товара")  
 
     def __str__(self):
         return self.name

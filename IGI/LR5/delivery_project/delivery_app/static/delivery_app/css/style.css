@@ -387,3 +387,9 @@ footer {
 .quantity-control .btn-decrease:hover {
     background-color: #ccc;
 }
+
+.product-image {
+    max-width: 200px;
+    height: auto;
+    object-fit: cover;
+}

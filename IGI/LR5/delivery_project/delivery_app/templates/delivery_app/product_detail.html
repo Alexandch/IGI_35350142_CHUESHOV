@@ -1,4 +1,5 @@
 {% extends "delivery_app/base.html" %}
+{% load static %}
 
 {% block title %}
 {{ product.name }}
@@ -7,6 +8,21 @@
 {% block content %}
 <h2>{{ product.name }}</h2>
 <p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
-<p>Цена: {{ product.price }} BYN</p>
-<p>Тип: {{ product.product_type.name }}</p>
+{% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" style="max-width: 200px;">
+{% else %}
+    <img src="{% static 'images/placeholder.jpg' %}" alt="Нет изображения" class="product-image">
+{% endif %}
+<p><strong>Цена:</strong> {{ product.price }} BYN</p>
+<p><strong>Тип:</strong> {{ product.product_type.name }}</p>
+<p><strong>Описание:</strong> {{ product.description|default:"Описание отсутствует" }}</p>
+<p><strong>Производитель:</strong> {{ product.manufacturer.name|default:"Не указан" }}</p>
+<p><strong>Вес:</strong> {{ product.weight }} кг</p>
+<p><strong>Остаток:</strong> {{ product.stock }}</p>
+<form method="post" action="{% url 'delivery_app:add_to_cart' product.id %}">
+    {% csrf_token %}
+    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" style="width: 60px; padding: 5px;">
+    <button type="submit">Добавить в корзину</button>
+</form>
+<a href="{% url 'delivery_app:product_list' %}">Назад к списку товаров</a>
 {% endblock %}

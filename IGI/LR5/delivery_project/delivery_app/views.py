@@ -612,7 +612,7 @@ def register(request):
                 user=user,
                 phone='+375 (29) 123-45-67',  # Значение по умолчанию
                 address='Не указан',  # Значение по умолчанию
-                date_of_birth='1990-01-01'  # Значение по умолчанию
+                date_of_birth=form.cleaned_data['date_of_birth']  # Сохраняем дату рождения
             )
             login(request, user)  # Автоматически логиним пользователя
             messages.success(request, "Регистрация успешно завершена! Добро пожаловать!")
