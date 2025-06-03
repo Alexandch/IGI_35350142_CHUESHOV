@@ -3,7 +3,7 @@ import logging
 import statistics
 from django.db.models import Sum, Count, F, ExpressionWrapper, DecimalField
 from django.views.generic import ListView, DetailView
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.contrib.auth import logout

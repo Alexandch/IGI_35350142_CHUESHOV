@@ -6,9 +6,8 @@
 {% endblock %}
 
 {% block content %}
-<h2>Добро пожаловать!</h2>
+<h2>Добро пожаловать в службу доставки продуктов!</h2>
 <p>Дата: {% if current_date %}{{ current_date|date:"d/m/Y" }}{% else %}N/A{% endif %} | Временная зона: {% if timezone %}{{ timezone }}{% else %}N/A{% endif %}</p>
-
 <h3>Погода в {{ weather_data.city }}</h3>
 {% if weather_data.temperature != 'N/A' and weather_data.description != 'N/A' %}
     <p>Температура: {{ weather_data.temperature }}°C</p>
@@ -41,4 +40,11 @@
         <tr><td>Ошибка загрузки календаря. Проверьте логи.</td></tr>
     {% endif %}
 </table>
+<h2>Последние новости</h2>
+<div style="margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;">
+        <h3>Запуск новой службы доставки</h3>
+        <p><small>15.05.2023</small></p>
+        <p>Мы рады сообщить о запуске нашей новой службы доставки в пределах города. Теперь мы доставляем ещё быстрее!</p>
+        <img src="{% static 'delivery_app/images/image.about.jpg' %}" alt="Доставка" style="max-width: 300px; border: 1px solid #ddd; border-radius: 4px;">
+</div>
 {% endblock %}
