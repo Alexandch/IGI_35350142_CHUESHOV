@@ -1,0 +1,947 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+Главная - Доставка продуктов
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>Добро пожаловать в службу доставки продуктов!</h1>
+            <p>Свежие продукты прямо к вашей двери. Быстро, удобно, надежно.</p>
+            <div class="hero-actions">
+                <a href="{% url 'delivery_app:product_list' %}" class="btn btn-primary">Заказать сейчас</a>
+                <a href="{% url 'delivery_app:about' %}" class="btn btn-secondary">О нас</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="{% static 'delivery_app/images/hero-delivery.svg' %}" alt="Доставка продуктов">
+        </div>
+    </div>
+</section>
+
+<!-- Баннеры -->
+<section class="banner-section">
+    <div class="container">
+        <div class="banner-slider">
+            {% for banner in banners %}
+            <div class="banner-item">
+                {% if banner.link %}
+                <a href="{{ banner.link }}" class="banner-link">
+                    <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="banner-img">
+                    <div class="banner-overlay">
+                        <h3>{{ banner.title }}</h3>
+                    </div>
+                </a>
+                {% else %}
+                <div class="banner-link">
+                    <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="banner-img">
+                    <div class="banner-overlay">
+                        <h3>{{ banner.title }}</h3>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="banner-item">
+                <img src="{% static 'delivery_app/images/banner1.svg' %}" alt="Баннер 1" class="banner-img">
+                <div class="banner-overlay">
+                    <h3>Быстрая доставка</h3>
+                </div>
+            </div>
+            <div class="banner-item">
+                <img src="{% static 'delivery_app/images/banner2.svg' %}" alt="Баннер 2" class="banner-img">
+                <div class="banner-overlay">
+                    <h3>Свежие продукты</h3>
+                </div>
+            </div>
+            <div class="banner-item">
+                <img src="{% static 'delivery_app/images/banner3.svg' %}" alt="Баннер 3" class="banner-img">
+                <div class="banner-overlay">
+                    <h3>Лучшие цены</h3>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Популярные товары -->
+<section class="featured-products">
+    <div class="container">
+        <div class="section-header">
+            <h2>Популярные товары</h2>
+            <p>Самые востребованные продукты этой недели</p>
+        </div>
+        
+        <div class="products-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% else %}
+                    <img src="{% static 'delivery_app/images/product-placeholder.jpg' %}" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="product-overlay">
+                        <button class="quick-view" data-product-id="{{ product.id }}">Быстрый просмотр</button>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description|truncatewords:15 }}</p>
+                    <div class="product-meta">
+                        <span class="product-price">{{ product.price }} BYN</span>
+                        <span class="product-unit">/ {{ product.get_unit_of_measurement_display }}</span>
+                    </div>
+                    <div class="product-actions">
+                        <a href="{% url 'delivery_app:product_detail' product.id %}" class="btn btn-outline">Подробнее</a>
+                        <button class="btn btn-primary add-to-cart" data-product-id="{{ product.id }}">В корзину</button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-products">
+                <img src="{% static 'delivery_app/images/empty-products.svg' %}" alt="Нет товаров">
+                <h3>Товаров пока нет</h3>
+                <p>Скоро мы добавим новые продукты в наш каталог</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="section-footer">
+            <a href="{% url 'delivery_app:product_list' %}" class="btn btn-large">Смотреть все товары</a>
+        </div>
+    </div>
+</section>
+
+<!-- Последняя новость -->
+<section class="latest-news">
+    <div class="container">
+        <div class="section-header">
+            <h2>Последние новости</h2>
+            <a href="{% url 'delivery_app:news' %}" class="view-all">Все новости</a>
+        </div>
+        
+        {% if latest_article %}
+        <article class="news-card">
+            <div class="news-image">
+                {% if latest_article.image %}
+                <img src="{{ latest_article.image.url }}" alt="{{ latest_article.title }}">
+                {% else %}
+                <img src="{% static 'delivery_app/images/news-placeholder.jpg' %}" alt="{{ latest_article.title }}">
+                {% endif %}
+            </div>
+            <div class="news-content">
+                <div class="news-meta">
+                    <span class="news-date">{{ latest_article.published_date|date:"d.m.Y" }}</span>
+                    <span class="news-category">Новости</span>
+                </div>
+                <h3 class="news-title">{{ latest_article.title }}</h3>
+                <p class="news-excerpt">{{ latest_article.summary }}</p>
+                <a href="{% url 'delivery_app:news_detail' latest_article.pk %}" class="btn btn-outline">Читать далее</a>
+            </div>
+        </article>
+        {% else %}
+        <article class="news-card">
+            <div class="news-image">
+                <img src="{% static 'delivery_app/images/image.about.jpg' %}" alt="Запуск службы доставки">
+            </div>
+            <div class="news-content">
+                <div class="news-meta">
+                    <span class="news-date">15.05.2023</span>
+                    <span class="news-category">Новости</span>
+                </div>
+                <h3 class="news-title">Запуск новой службы доставки</h3>
+                <p class="news-excerpt">Мы рады сообщить о запуске нашей новой службы доставки в пределах города. Теперь мы доставляем ещё быстрее!</p>
+                <a href="#" class="btn btn-outline">Читать далее</a>
+            </div>
+        </article>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Партнеры -->
+<section class="partners-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Наши партнёры</h2>
+            <p>Мы сотрудничаем с лучшими производителями и поставщиками</p>
+        </div>
+        
+        <div class="partners-grid">
+            {% for partner in partners %}
+            <div class="partner-card">
+                <a href="{{ partner.website }}" target="_blank" rel="noopener noreferrer">
+                    {% if partner.logo %}
+                    <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="partner-logo">
+                    {% else %}
+                    <div class="partner-name">{{ partner.name }}</div>
+                    {% endif %}
+                </a>
+                {% if partner.description %}
+                <p class="partner-description">{{ partner.description }}</p>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="no-partners">
+                <img src="{% static 'delivery_app/images/empty-partners.svg' %}" alt="Нет партнеров">
+                <h3>Информация о партнерах скоро появится</h3>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Информационные виджеты -->
+<section class="info-widgets">
+    <div class="container">
+        <div class="widgets-grid">
+            <!-- Погода -->
+            <div class="info-card">
+                <div class="card-header">
+                    <h3>Погода в {{ weather_data.city }}</h3>
+                    <span class="weather-icon">🌤️</span>
+                </div>
+                <div class="card-content">
+                    {% if weather_data.temperature != 'N/A' and weather_data.description != 'N/A' %}
+                    <div class="weather-temp">{{ weather_data.temperature }}°C</div>
+                    <div class="weather-desc">{{ weather_data.description }}</div>
+                    {% else %}
+                    <div class="weather-error">Не удалось получить данные о погоде</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Курсы валют -->
+            <div class="info-card">
+                <div class="card-header">
+                    <h3>Курсы валют</h3>
+                    <span class="currency-icon">💱</span>
+                </div>
+                <div class="card-content">
+                    {% if exchange_data.usd != 'N/A' and exchange_data.eur != 'N/A' %}
+                    <div class="currency-row">
+                        <span>USD:</span>
+                        <span>{{ exchange_data.usd|default:'N/A' }}</span>
+                    </div>
+                    <div class="currency-row">
+                        <span>EUR:</span>
+                        <span>{{ exchange_data.eur|default:'N/A' }}</span>
+                    </div>
+                    {% else %}
+                    <div class="currency-error">Не удалось получить данные о курсах</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Календарь -->
+            <div class="info-card">
+                <div class="card-header">
+                    <h3>Календарь</h3>
+                    <span class="calendar-icon">📅</span>
+                </div>
+                <div class="card-content">
+                    <div class="calendar-header">
+                        {{ current_date|date:"F Y" }}
+                    </div>
+                    <table class="calendar-table">
+                        <thead>
+                            <tr>
+                                <th>Пн</th>
+                                <th>Вт</th>
+                                <th>Ср</th>
+                                <th>Чт</th>
+                                <th>Пт</th>
+                                <th>Сб</th>
+                                <th>Вс</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for week in calendar %}
+                            <tr>
+                                {% for day in week %}
+                                <td{% if day == 0 %} class="empty"{% endif %}>
+                                    {{ day|default:"" }}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Преимущества -->
+<section class="benefits-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Почему выбирают нас?</h2>
+        </div>
+        
+        <div class="benefits-grid">
+            <div class="benefit-item">
+                <div class="benefit-icon">🚚</div>
+                <h3>Быстрая доставка</h3>
+                <p>Доставляем заказы в течение 2-х часов по городу</p>
+            </div>
+            
+            <div class="benefit-item">
+                <div class="benefit-icon">🌿</div>
+                <h3>Свежие продукты</h3>
+                <p>Только качественные и свежие продукты от проверенных поставщиков</p>
+            </div>
+            
+            <div class="benefit-item">
+                <div class="benefit-icon">💰</div>
+                <h3>Доступные цены</h3>
+                <p>Конкурентные цены и регулярные акции для наших клиентов</p>
+            </div>
+            
+            <div class="benefit-item">
+                <div class="benefit-icon">📱</div>
+                <h3>Удобный заказ</h3>
+                <p>Заказывайте через сайт или мобильное приложение в любое время</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Общие стили */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-header h2 {
+    color: #2c5aa0;
+    margin-bottom: 10px;
+}
+
+.section-header p {
+    color: #6c757d;
+    font-size: 1.1em;
+}
+
+.view-all {
+    color: #2c5aa0;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1e3d6f;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #2c5aa0;
+    border: 1px solid #2c5aa0;
+}
+
+.btn-outline:hover {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+.btn-large {
+    padding: 12px 30px;
+    font-size: 1.1em;
+}
+
+/* Герой-секция */
+.hero-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 60px 0;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    gap: 40px;
+}
+
+.hero-text {
+    flex: 1;
+}
+
+.hero-text h1 {
+    font-size: 2.5em;
+    color: #2c5aa0;
+    margin-bottom: 20px;
+}
+
+.hero-text p {
+    font-size: 1.2em;
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.hero-image {
+    flex: 1;
+    text-align: center;
+}
+
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Баннеры */
+.banner-section {
+    padding: 40px 0;
+}
+
+.banner-slider {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 10px 0;
+    scrollbar-width: thin;
+}
+
+.banner-item {
+    flex: 0 0 auto;
+    width: 300px;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.banner-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.banner-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+    padding: 15px;
+    color: white;
+}
+
+.banner-overlay h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+
+/* Товары */
+.featured-products {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.product-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.product-image {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.quick-view {
+    background: white;
+    color: #2c5aa0;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.product-info {
+    padding: 15px;
+}
+
+.product-title {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+    color: #2c5aa0;
+}
+
+.product-description {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.product-meta {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.product-price {
+    font-weight: bold;
+    font-size: 1.2em;
+    color: #2c5aa0;
+}
+
+.product-unit {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+.product-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.add-to-cart {
+    flex: 1;
+}
+
+.no-products {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 40px 0;
+}
+
+.no-products img {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+.section-footer {
+    text-align: center;
+}
+
+/* Новости */
+.latest-news {
+    padding: 60px 0;
+}
+
+.news-card {
+    display: flex;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.news-image {
+    flex: 0 0 40%;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.news-content {
+    flex: 1;
+    padding: 25px;
+}
+
+.news-meta {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.news-date, .news-category {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.news-title {
+    font-size: 1.5em;
+    color: #2c5aa0;
+    margin-bottom: 15px;
+}
+
+.news-excerpt {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+/* Партнеры */
+.partners-section {
+    padding: 60px 0;
+    background-color: #f8f9fa;
+}
+
+.partners-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 30px;
+}
+
+.partner-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.partner-card:hover {
+    transform: translateY(-5px);
+}
+
+.partner-logo {
+    max-height: 80px;
+    max-width: 100%;
+    margin-bottom: 15px;
+}
+
+.partner-name {
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 15px;
+}
+
+.partner-description {
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.no-partners {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 40px 0;
+}
+
+.no-partners img {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+/* Информационные виджеты */
+.info-widgets {
+    padding: 60px 0;
+}
+
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.info-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h3 {
+    margin: 0;
+    color: #2c5aa0;
+}
+
+.weather-icon, .currency-icon, .calendar-icon {
+    font-size: 1.5em;
+}
+
+.weather-temp {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 5px;
+}
+
+.weather-desc {
+    color: #6c757d;
+}
+
+.weather-error, .currency-error {
+    color: #dc3545;
+}
+
+.currency-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 5px 0;
+}
+
+.currency-row:not(:last-child) {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.calendar-header {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #2c5aa0;
+}
+
+.calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.calendar-table th {
+    padding: 5px;
+    text-align: center;
+    font-weight: normal;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.calendar-table td {
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.calendar-table td.empty {
+    background-color: #f8f9fa;
+}
+
+/* Преимущества */
+.benefits-section {
+    padding: 60px 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.benefit-item {
+    text-align: center;
+    padding: 30px 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.benefit-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+.benefit-item h3 {
+    color: #2c5aa0;
+    margin-bottom: 15px;
+}
+
+.benefit-item p {
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .hero-text h1 {
+        font-size: 2em;
+    }
+    
+    .hero-actions {
+        justify-content: center;
+    }
+    
+    .news-card {
+        flex-direction: column;
+    }
+    
+    .news-image {
+        height: 200px;
+    }
+    
+    .widgets-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .partners-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-text h1 {
+        font-size: 1.8em;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+// Функция для добавления товара в корзину
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        // Здесь будет код для добавления товара в корзину
+        alert('Товар добавлен в корзину!');
+    });
+});
+
+// Функция для быстрого просмотра товара
+document.querySelectorAll('.quick-view').forEach(button => {
+    button.addEventListener('click', function() {
+        const productId = this.dataset.productId;
+        // Здесь будет код для быстрого просмотра товара
+        alert('Быстрый просмотр товара #' + productId);
+    });
+});
+
+// Инициализация слайдера баннеров (упрощенная версия)
+function initBannerSlider() {
+    const slider = document.querySelector('.banner-slider');
+    if (slider) {
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+        
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+        
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+        
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 2;
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    }
+}
+
+// Запуск при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    initBannerSlider();
+});
+</script>
+{% endblock %}

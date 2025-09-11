@@ -1,0 +1,1344 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+О нашей компании - Доставка продуктов
+{% endblock %}
+
+{% block meta_description %}
+{{ company_info.description|default:"Мы - надежная служба доставки продуктов. Узнайте больше о нашей истории, ценностях и команде." }}
+{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    
+    <section class="about-hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>О нашей компании</h1>
+                <p class="hero-subtitle">Более 5 лет доставляем свежие продукты прямо к вашей двери</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">10,000+</span>
+                        <span class="stat-label">Довольных клиентов</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">5,000+</span>
+                        <span class="stat-label">Товаров в ассортименте</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">98%</span>
+                        <span class="stat-label">Положительных отзывов</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                {% if company_info.logo %}
+                    <img src="{{ company_info.logo.url }}" alt="{{ company_info.name }}" class="company-logo-large">
+                {% else %}
+                    <img src="{% static 'delivery_app/images/about-hero.jpg' %}" alt="Доставка продуктов" class="company-logo-large">
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Навигация по странице -->
+    <nav class="about-nav">
+        <ul>
+            <li><a href="#about" class="nav-link active">О нас</a></li>
+            <li><a href="#history" class="nav-link">История</a></li>
+            <li><a href="#values" class="nav-link">Ценности</a></li>
+            <li><a href="#team" class="nav-link">Команда</a></li>
+            <li><a href="#requisites" class="nav-link">Реквизиты</a></li>
+            <li><a href="#certificates" class="nav-link">Сертификаты</a></li>
+        </ul>
+    </nav>
+
+    <!-- Основное содержимое -->
+    <div class="about-content">
+        <!-- Вертикальная навигация -->
+        <section class="vertical-nav-section">
+            <div class="section-header">
+                <h2>Быстрая навигация</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <nav class="vertical-nav">
+                    <ul>
+                        <li><a href="#about">О компании</a></li>
+                        <li><a href="#history">История</a></li>
+                        <li><a href="#values">Ценности</a></li>
+                        <li><a href="#team">Команда</a></li>
+                        <li><a href="#requisites">Реквизиты</a></li>
+                        <li><a href="#certificates">Сертификаты</a></li>
+                        <li><a href="#semantic">Семантика</a></li>
+                        <li><a href="#tables">Таблицы</a></li>
+                        <li><a href="#audio">Аудио</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </section>
+
+        <!-- О компании -->
+        <section id="about" class="about-section">
+            <div class="section-header">
+                <h2>О компании {{ company_info.name }}</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <div class="about-text">
+                    <p>{{ company_info.description }}</p>
+                    <div class="features-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">🚚</div>
+                            <h4>Быстрая доставка</h4>
+                            <p>Доставляем заказы в течение 2-х часов по городу</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🌿</div>
+                            <h4>Свежие продукты</h4>
+                            <p>Только качественные продукты от проверенных поставщиков</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">💰</div>
+                            <h4>Доступные цены</h4>
+                            <p>Конкурентные цены и регулярные акции для наших клиентов</p>
+                        </div>
+                    </div>
+                </div>
+                {% if company_info.video_url %}
+                <div class="company-video">
+                <h3>Видео о нашей компании</h3>
+                <div class="video-container">
+                <div class="video-wrapper">
+                   <iframe 
+                       src="{{ company_info.video_url|safe }}" 
+                       frameborder="0" 
+                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                       allowfullscreen
+                       loading="lazy"
+                       title="Видео о компании {{ company_info.name }}">
+                    </iframe>
+                </div>
+                {% if not company_info.video_url %}
+                <div class="video-placeholder">
+                    <div class="placeholder-content">
+                       <i class="fas fa-video"></i>
+                       <p>Видео недоступно</p>
+                       <small>Проверьте ссылку в админ-панели</small>
+                    </div>
+                </div>
+                {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            </div>
+        </section>
+
+        <!-- История компании -->
+        <section id="history" class="about-section">
+            <div class="section-header">
+                <h2>Наша история</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                {% if company_info.history %}
+                <div class="history-text">
+                    <p>{{ company_info.history }}</p>
+                </div>
+                {% endif %}
+                
+                {% if company_info.history_by_years %}
+                <div class="timeline">
+                    <h3>История в датах</h3>
+                    <div class="timeline-container">
+                        {% for year, event in company_info.history_by_years.items %}
+                        <div class="timeline-item">
+                            <div class="timeline-year">{{ year }}</div>
+                            <div class="timeline-content">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-event">{{ event }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Ценности компании -->
+        <section id="values" class="about-section">
+            <div class="section-header">
+                <h2>Наши ценности</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <div class="values-grid">
+                    <div class="value-item">
+                        <div class="value-icon">💎</div>
+                        <h4>Качество</h4>
+                        <p>Мы тщательно отбираем продукты и контролируем каждый этап доставки</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-icon">🤝</div>
+                        <h4>Надежность</h4>
+                        <p>Мы всегда выполняем свои обязательства и соблюдаем договоренности</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-icon">❤️</div>
+                        <h4>Забота о клиентах</h4>
+                        <p>Ваше удовлетворение - наш главный приоритет</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="value-icon">🌍</div>
+                        <h4>Экологичность</h4>
+                        <p>Мы используем экологичную упаковку и поддерживаем местных производителей</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Команда -->
+        <section id="team" class="about-section">
+            <div class="section-header">
+                <h2>Наша команда</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="{% static 'delivery_app/images/team-placeholder.jpg' %}" alt="Основатель компании">
+                        </div>
+                        <h4>Иван Иванов</h4>
+                        <p class="member-position">Основатель и CEO</p>
+                        <p class="member-bio">Основал компанию в 2018 году с целью сделать покупку продуктов удобной для каждого</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="{% static 'delivery_app/images/team-placeholder.jpg' %}" alt="Главный технолог">
+                        </div>
+                        <h4>Мария Петрова</h4>
+                        <p class="member-position">Главный технолог</p>
+                        <p class="member-bio">Следит за качеством продуктов и разрабатывает стандарты хранения</p>
+                    </div>
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="{% static 'delivery_app/images/team-placeholder.jpg' %}" alt="Директор по развитию">
+                        </div>
+                        <h4>Алексей Смирнов</h4>
+                        <p class="member-position">Директор по развитию</p>
+                        <p class="member-bio">Отвечает за расширение ассортимента и развитие сервиса</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Форма с валидацией -->
+        <section class="about-section">
+            <div class="section-header">
+                <h2>Свяжитесь с нами</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <form novalidate class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Имя *</label>
+                        <input type="text" id="name" name="name" required pattern="[A-Za-zА-Яа-яЁё\s]{2,}">
+                        <span class="error-message">Пожалуйста, введите ваше имя (минимум 2 символа)</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                        <span class="error-message">Пожалуйста, введите корректный email адрес</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" name="phone" pattern="[\+]\d{1,3}[\(]\d{3}[\)]\d{3}[\-]\d{2}[\-]\d{2}" placeholder="+7(999)999-99-99">
+                        <span class="error-message">Формат: +7(999)999-99-99</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Тема</label>
+                        <select id="subject" name="subject">
+                            <option value="">Выберите тему</option>
+                            <option value="delivery">Вопрос о доставке</option>
+                            <option value="products">Вопрос о продуктах</option>
+                            <option value="partnership">Сотрудничество</option>
+                            <option value="other">Другое</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Сообщение *</label>
+                        <textarea id="message" name="message" required minlength="10"></textarea>
+                        <span class="error-message">Пожалуйста, введите сообщение (минимум 10 символов)</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="file">Прикрепить файл</label>
+                        <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.png">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit">Отправить сообщение</button>
+                        <button type="reset">Очистить форму</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Реквизиты -->
+        <section id="requisites" class="about-section">
+            <div class="section-header">
+                <h2>Реквизиты</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                {% if company_info.requisites %}
+                <div class="requisites-card">
+                    <div class="requisites-content">
+                        {{ company_info.requisites|linebreaks }}
+                    </div>
+                    <div class="requisites-map">
+                        <div class="map-placeholder">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <p>Карта расположения нашего офиса</p>
+                            <button class="btn btn-outline">Открыть в картах</button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>Информация о реквизитах компании скоро будет добавлена</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Сертификаты -->
+        <section id="certificates" class="about-section">
+            <div class="section-header">
+                <h2>Сертификаты и лицензии</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                {% if company_info.certificate %}
+                <div class="certificates-grid">
+                    <div class="certificate-item">
+                        <div class="certificate-preview">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <h4>Сертификат соответствия</h4>
+                        <p>{{ company_info.certificate|truncatewords:20 }}</p>
+                        <button class="btn btn-outline">Посмотреть сертификат</button>
+                    </div>
+                    <div class="certificate-item">
+                        <div class="certificate-preview">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h4>Лицензия на деятельность</h4>
+                        <p>Официальная лицензия на осуществление деятельности по доставке продуктов</p>
+                        <button class="btn btn-outline">Посмотреть лицензию</button>
+                    </div>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>Информация о сертификатах компании скоро будет добавлена</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Семантическое выделение текста -->
+        <section class="semantic-elements">
+            <div class="section-header">
+                <h2>Семантические элементы HTML</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <!-- Сокращения -->
+                <h3>Сокращения</h3>
+                <p>Мы используем <abbr title="HyperText Markup Language">HTML</abbr> для создания наших веб-страниц.</p>
+                
+                <!-- Определения -->
+                <h3>Определения</h3>
+                <p><dfn>Доставка продуктов</dfn> - это услуга по транспортировке пищевых продуктов от поставщика к потребителю.</p>
+                
+                <!-- Цитаты -->
+                <h3>Цитаты</h3>
+                <blockquote cite="https://example.com">
+                    <p>Качество продуктов - это наша первоочередная задача. Мы тщательно отбираем поставщиков и контролируем каждый этап доставки.</p>
+                    <footer>- Основатель компании, <cite>Иван Иванов</cite></footer>
+                </blockquote>
+                
+                <p>Как сказал наш CEO: <q>Свежесть продуктов - это не просто слово, это наше обязательство</q>.</p>
+                
+                <!-- Дата-время -->
+                <h3>Дата и время</h3>
+                <p>Компания была основана <time datetime="2018-05-15">15 мая 2018 года</time>. Работаем с <time datetime="09:00">9:00</time> до <time datetime="21:00">21:00</time> ежедневно.</p>
+                
+                <!-- Листинг кода -->
+                <h3>Пример кода</h3>
+                <p>Вот как мы рассчитываем время доставки:</p>
+                <pre><code>
+function calculateDeliveryTime(distance, traffic) {
+    // Базовое время доставки - 30 минут
+    let baseTime = 30;
+    
+    // Добавляем время в зависимости от расстояния
+    let distanceTime = distance * 2;
+    
+    // Учитываем пробки
+    let trafficTime = traffic * 5;
+    
+    // Итоговое время
+    return baseTime + distanceTime + trafficTime;
+}
+                </code></pre>
+                
+                <!-- Четверостишие -->
+                <h3>Наше кредо</h3>
+                <pre>
+Свежие продукты - каждый день,
+Быстрая доставка - точно в срок.
+Мы работаем для вас, друзья,
+Наш сервис - это высший класс!
+                </pre>
+                
+                <!-- Ссылка для скачивания -->
+                <h3>Документы</h3>
+                <p>Скачайте наш полный каталог продуктов: <a href="{% static 'docs/product_catalog.pdf' %}" download>Каталог продуктов (PDF)</a></p>
+            </div>
+        </section>
+
+        <!-- Таблицы с семантической разметкой -->
+        <section id="tables" class="about-section">
+            <div class="section-header">
+                <h2>Наша статистика</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <table>
+                    <caption>Статистика доставок за последний год</caption>
+                    <thead>
+                        <tr>
+                            <th id="month" scope="col">Месяц</th>
+                            <th id="orders" scope="col">Количество заказов</th>
+                            <th id="avg-time" scope="col">Среднее время доставки</th>
+                            <th id="satisfaction" scope="col">Удовлетворенность клиентов</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th id="jan" headers="month" scope="row">Январь</th>
+                            <td headers="orders jan">1250</td>
+                            <td headers="avg-time jan">45 мин</td>
+                            <td headers="satisfaction jan">96%</td>
+                        </tr>
+                        <tr>
+                            <th id="feb" headers="month" scope="row">Февраль</th>
+                            <td headers="orders feb">1340</td>
+                            <td headers="avg-time feb">42 мин</td>
+                            <td headers="satisfaction feb">97%</td>
+                        </tr>
+                        <tr>
+                            <th id="mar" headers="month" scope="row">Март</th>
+                            <td headers="orders mar">1480</td>
+                            <td headers="avg-time mar">40 мин</td>
+                            <td headers="satisfaction mar">98%</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th headers="month" scope="row">Итого за квартал</th>
+                            <td headers="orders">4070</td>
+                            <td headers="avg-time">42.3 мин</td>
+                            <td headers="satisfaction">97%</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- Таблица с объединенными ячейками -->
+                <h3>График работы отделов</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th id="department" scope="col">Отдел</th>
+                            <th id="work-hours" scope="col" colspan="2">Часы работы</th>
+                        </tr>
+                        <tr>
+                            <th headers="department" scope="col"></th>
+                            <th id="weekdays" headers="work-hours" scope="col">Будни</th>
+                            <th id="weekend" headers="work-hours" scope="col">Выходные</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th id="support" headers="department" scope="row">Поддержка клиентов</th>
+                            <td headers="work-hours support weekdays">9:00-21:00</td>
+                            <td headers="work-hours support weekend">10:00-18:00</td>
+                        </tr>
+                        <tr>
+                            <th id="delivery" headers="department" scope="row">Служба доставки</th>
+                            <td headers="work-hours delivery weekdays" colspan="2">Круглосуточно</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Аудио элемент -->
+        <section id="audio" class="about-section">
+            <div class="section-header">
+                <h2>Аудиообращение</h2>
+                <div class="section-divider"></div>
+            </div>
+            <div class="section-content">
+                <figure>
+                    <figcaption>Послушайте обращение нашего основателя:</figcaption>
+                    <audio controls>
+                        <source src="{% static 'audio/ceo_message.mp3' %}" type="audio/mpeg">
+                        <source src="{% static 'audio/ceo_message.ogg' %}" type="audio/ogg">
+                        Ваш браузер не поддерживает аудио элемент.
+                    </audio>
+                </figure>
+            </div>
+        </section>
+    </div>
+     
+    <!-- CTA секция -->
+    <section class="about-cta">
+        <div class="cta-content">
+            <h2>Готовы попробовать наши услуги?</h2>
+            <p>Закажите доставку свежих продуктов прямо сейчас</p>
+            <div class="cta-buttons">
+                <a href="{% url 'delivery_app:product_list' %}" class="btn btn-primary">Смотреть товары</a>
+                <a href="{% url 'delivery_app:contacts' %}" class="btn btn-outline">Связаться с нами</a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Hero-секция */
+.about-hero {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    padding: 40px;
+    margin-bottom: 40px;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.hero-text h1 {
+    color: #2c5aa0;
+    margin-bottom: 15px;
+    font-size: 2.5em;
+}
+
+.hero-subtitle {
+    color: #6c757d;
+    font-size: 1.2em;
+    margin-bottom: 30px;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 30px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 2em;
+    font-weight: bold;
+    color: #2c5aa0;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.hero-image {
+    flex-shrink: 0;
+}
+
+.company-logo-large {
+    max-width: 300px;
+    max-height: 200px;
+    object-fit: contain;
+}
+
+/* Навигация */
+.about-nav {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    position: sticky;
+    top: 80px;
+    z-index: 100;
+}
+
+.about-nav ul {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.about-nav li {
+    list-style: none;
+}
+
+.nav-link {
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #6c757d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+/* Секции */
+.about-section {
+    margin-bottom: 60px;
+    scroll-margin-top: 100px;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.section-header h2 {
+    color: #2c5aa0;
+    margin-bottom: 15px;
+}
+
+.section-divider {
+    width: 60px;
+    height: 3px;
+    background-color: #2c5aa0;
+    margin: 0 auto;
+}
+
+.section-content {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* О компании */
+.about-text p {
+    line-height: 1.6;
+    margin-bottom: 30px;
+    font-size: 1.1em;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 20px;
+}
+
+.feature-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.feature-item h4 {
+    color: #2c5aa0;
+    margin-bottom: 10px;
+}
+
+.about-video {
+    margin-top: 40px;
+}
+
+.about-video h3 {
+    color: #2c5aa0;
+    margin-bottom: 20px;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* История */
+.history-text p {
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.timeline {
+    margin-top: 40px;
+}
+
+.timeline h3 {
+    color: #2c5aa0;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.timeline-container {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-year {
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.timeline-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.timeline-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #2c5aa0;
+    flex-shrink: 0;
+    margin-top: 5px;
+}
+
+.timeline-event {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    flex: 1;
+}
+
+/* Ценности */
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.value-item {
+    text-align: center;
+    padding: 25px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: transform 0.3s ease;
+}
+
+.value-item:hover {
+    transform: translateY(-5px);
+}
+
+.value-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.value-item h4 {
+    color: #2c5aa0;
+    margin-bottom: 10px;
+}
+
+/* Команда */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.team-member {
+    text-align: center;
+}
+
+.member-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 20px;
+    border: 3px solid #2c5aa0;
+}
+
+.member-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-member h4 {
+    color: #2c5aa0;
+    margin-bottom: 5px;
+}
+
+.member-position {
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.member-bio {
+    color: #6c757d;
+    line-height: 1.5;
+}
+
+/* Реквизиты */
+.requisites-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.requisites-content {
+    line-height: 1.6;
+}
+
+.requisites-map {
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-placeholder {
+    text-align: center;
+    padding: 20px;
+}
+
+.map-placeholder i {
+    font-size: 3em;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+/* Сертификаты */
+.certificates-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.certificate-item {
+    text-align: center;
+    padding: 25px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.certificate-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.certificate-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.certificate-preview i {
+    font-size: 2em;
+    color: #2c5aa0;
+}
+
+.certificate-item h4 {
+    color: #2c5aa0;
+    margin-bottom: 10px;
+}
+
+.certificate-item p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+/* Пустые состояния */
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+/* CTA секция */
+.about-cta {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3d6f 100%);
+    border-radius: 10px;
+    padding: 50px;
+    text-align: center;
+    color: white;
+    margin-bottom: 40px;
+}
+
+.cta-content h2 {
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.cta-content p {
+    margin-bottom: 30px;
+    opacity: 0.9;
+    font-size: 1.1em;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: white;
+    color: #2c5aa0;
+}
+
+.btn-primary:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+}
+
+.btn-outline:hover {
+    background-color: white;
+    color: #2c5aa0;
+    transform: translateY(-2px);
+}
+
+.semantic-elements abbr {
+    text-decoration: underline dotted;
+    cursor: help;
+}
+
+.semantic-elements dfn {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.semantic-elements blockquote {
+    border-left: 3px solid #2c5aa0;
+    padding-left: 15px;
+    margin: 20px 0;
+    font-style: italic;
+}
+
+.semantic-elements pre {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+}
+
+.semantic-elements code {
+    font-family: 'Courier New', monospace;
+    background-color: #f8f9fa;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Вертикальная навигация */
+.vertical-nav {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.vertical-nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+.vertical-nav li {
+    margin-bottom: 10px;
+}
+
+.vertical-nav a {
+    display: block;
+    padding: 10px 15px;
+    background-color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #2c5aa0;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.vertical-nav a:hover {
+    background-color: #e9ecef;
+    border-left-color: #2c5aa0;
+}
+
+/* Таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+caption {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+    color: #2c5aa0;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #2c5aa0;
+}
+
+tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+tfoot {
+    font-weight: bold;
+}
+
+/* Аудио элемент */
+audio {
+    width: 100%;
+    margin: 15px 0;
+}
+
+/* Формы */
+.contact-form {
+    display: grid;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: none;
+}
+
+input:invalid:focus,
+select:invalid:focus,
+textarea:invalid:focus {
+    border-color: #dc3545;
+}
+
+input:invalid:focus + .error-message,
+select:invalid:focus + .error-message,
+textarea:invalid:focus + .error-message {
+    display: block;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.form-actions button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.form-actions button[type="submit"] {
+    background-color: #2c5aa0;
+    color: white;
+}
+
+.form-actions button[type="reset"] {
+    background-color: #6c757d;
+    color: white;
+}
+
+.form-actions button:hover {
+    opacity: 0.9;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .vertical-nav {
+        padding: 15px;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .hero-stats {
+        justify-content: center;
+    }
+    
+    .requisites-card {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-nav ul {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 30px 20px;
+    }
+    
+    .hero-text h1 {
+        font-size: 2em;
+    }
+    
+    .hero-stats {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .about-nav ul {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .nav-link {
+        text-align: center;
+    }
+    
+    .features-grid,
+    .values-grid,
+    .team-grid,
+    .certificates-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .about-cta {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-content {
+        padding: 20px;
+    }
+    
+    .timeline-container {
+        padding-left: 20px;
+    }
+    
+    .timeline-dot {
+        width: 15px;
+        height: 15px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Плавная прокрутка к якорям
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                // Убираем активный класс со всех ссылок
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Добавляем активный класс к текущей ссылке
+                this.classList.add('active');
+                
+                // Плавная прокрутка
+                window.scrollTo({
+                    top: targetElement.offsetTop - 100,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Подсветка активного раздела при прокрутке
+    const sections = document.querySelectorAll('.about-section');
+    
+    function highlightNav() {
+        let currentSection = '';
+        
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            
+            if (window.pageYOffset >= sectionTop - 150 && 
+                window.pageYOffset < sectionTop + sectionHeight - 150) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + currentSection) {
+                link.classList.add('active');
+            }
+        });
+    }
+    
+    window.addEventListener('scroll', highlightNav);
+    
+    // Инициализация при загрузке
+    highlightNav();
+    
+    // Обработка кнопок сертификатов
+    const certificateButtons = document.querySelectorAll('.certificate-item .btn');
+    
+    certificateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            alert('Функция просмотра сертификатов будет реализована в ближайшее время.');
+        });
+    });
+    
+    // Обработка кнопки карты
+    const mapButton = document.querySelector('.requisites-map .btn');
+    
+    if (mapButton) {
+        mapButton.addEventListener('click', function() {
+            alert('Функция открытия карты будет реализована в ближайшее время.');
+        });
+    }
+});
+</script>
+{% endblock %}

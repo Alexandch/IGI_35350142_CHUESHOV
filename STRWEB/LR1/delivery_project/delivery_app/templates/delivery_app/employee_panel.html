@@ -1,0 +1,196 @@
+{% extends "delivery_app/base.html" %}
+
+{% block content %}
+<h2>Панель сотрудника</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+{% if user.is_superuser %}
+<p><a href="{% url 'delivery_app:employee_products' %}">Управление товарами</a></p>
+{% endif %}
+<!-- Фильтры -->
+<form method="get">
+    <label for="status_filter">Статус:</label>
+    <select name="status_filter" id="status_filter">
+        <option value="">Все</option>
+        {% for status, _ in status_choices %}
+            <option value="{{ status }}" {% if request.GET.status_filter == status %}selected{% endif %}>{{ status }}</option>
+        {% endfor %}
+    </select>
+    <label for="date_filter">Дата:</label>
+    <input type="date" name="date_filter" id="date_filter" value="{{ request.GET.date_filter }}">
+    <label for="type_filter">Тип товара:</label>
+    <select name="type_filter" id="type_filter">
+        <option value="">Все</option>
+        {% for type in product_types %}
+            <option value="{{ type.name }}" {% if request.GET.type_filter == type.name %}selected{% endif %}>{{ type.name }}</option>
+        {% endfor %}
+    </select>
+    <label for="delivery_method_filter">Способ доставки:</label>
+    <select name="delivery_method_filter" id="delivery_method_filter">
+        <option value="">Все</option>
+        {% for method, _ in delivery_methods %}
+            <option value="{{ method }}" {% if request.GET.delivery_method_filter == method %}selected{% endif %}>{{ method }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Применить</button>
+</form>
+
+<!-- Список заказов -->
+<h3>Заказы</h3>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Клиент</th>
+        <th>Сотрудник</th>
+        <th>Дата заказа</th>
+        <th>Статус</th>
+        <th>Общая стоимость</th>
+        <th>Точка выдачи</th>
+        <th>Стоимость доставки</th>
+        <th>Способ доставки</th>
+        <th>Дата доставки</th>
+        <th>Действия</th>
+    </tr>
+    {% for order_data in orders %}
+        {% with order=order_data.order %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.client.user.username }}</td>
+            <td>{{ order.employee.user.username|default:"Не назначен" }}</td>
+            <td>{{ order.date_ordered|date:'d/m/Y' }}</td>
+            <td>
+                <form method="post" action="{% url 'delivery_app:employee_panel' %}">
+                    {% csrf_token %}
+                    <select name="status">
+                        {% for status, display in status_choices %}
+                            <option value="{{ status }}" {% if order.status == status %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+            </td>
+            <td>{{ order_data.total_cost|floatformat:2 }} BYN</td>
+            <td>{{ order.pickup_point.name|default:"-" }}</td>
+            <td>{{ order.delivery_cost }} BYN</td>
+            <td>{{ order.get_delivery_method_display }}</td>
+            <td>
+                    <input type="date" name="date_delivered" value="{{ order.date_delivered|date:'Y-m-d'|default_if_none:'' }}">
+            </td>
+            <td>
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+                    <input type="hidden" name="action" value="update">
+                    <button type="submit">Обновить</button>
+                </form>
+            </td>
+        </tr>
+        {% endwith %}
+    {% empty %}
+        <tr><td colspan="11">Нет заказов.</td></tr>
+    {% endfor %}
+</table>
+
+<h2>Распределение заказов по статусам</h2>
+<canvas id="statusChart" width="300" height="300"></canvas>
+
+<script>
+    // Получаем данные из контекста
+    const statusCounts = {
+        {% for status, count in status_counts.items %}
+            "{{ status }}": {{ count }},
+        {% endfor %}
+    };
+
+    // Подготовка данных для диаграммы
+    const labels = Object.keys(statusCounts);
+    const data = Object.values(statusCounts);
+
+    // Создаём круговую диаграмму
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Количество заказов',
+                data: data,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',  // Красный
+                    'rgba(54, 162, 235, 0.7)',  // Синий
+                    'rgba(255, 206, 86, 0.7)',  // Жёлтый
+                    'rgba(75, 192, 192, 0.7)',  // Бирюзовый
+                    'rgba(153, 102, 255, 0.7)', // Фиолетовый
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false,  // Отключаем адаптивность для фиксированного размера
+            maintainAspectRatio: false,  // Разрешаем не сохранять пропорции
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        boxWidth: 10,  // Уменьшаем размер квадратиков в легенде
+                        font: {
+                            size: 12  // Уменьшаем размер шрифта в легенде
+                        }
+                    }
+                },
+                title: {
+                    display: true,
+                    text: 'Заказы по статусам',
+                    font: {
+                        size: 14  // Уменьшаем размер шрифта заголовка
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+<!-- Статистика -->
+<h2>Статистика</h2>
+<p>Всего заказов: {{ total_orders }}</p>
+<ul>
+    {% for status, count in status_counts.items %}
+        <li>{{ status }}: {{ count }}</li>
+    {% endfor %}
+</ul>
+<p>Общая сумма продаж: {{ total_sales|floatformat:2 }} BYN</p>
+<p>Средняя сумма продаж: {{ sales_mean|floatformat:2 }} BYN</p>
+<p>Медиана суммы продаж: {{ sales_median|floatformat:2 }} BYN</p>
+<p>Мода суммы продаж: {{ sales_mode|floatformat:2 }} BYN</p>
+<p>Средний возраст клиентов: {{ age_mean|floatformat:0 }} лет</p>
+<p>Медиана возраста клиентов: {{ age_median|floatformat:0 }} лет</p>
+
+<h3>Популярные типы товаров</h3>
+<ul>
+    {% for type in popular_types %}
+        <li>{{ type.name }}: {{ type.order_count }} заказов</li>
+    {% empty %}
+        <li>Нет данных о заказах.</li>
+    {% endfor %}
+</ul>
+
+<h3>Прибыль по типам товаров</h3>
+<ul>
+    {% for type in profit_by_type %}
+        <li>{{ type.name }}: {{ type.total_profit|floatformat:2 }} BYN</li>
+    {% empty %}
+        <li>Нет данных о прибыли.</li>
+    {% endfor %}
+</ul>
+
+<h3>Список клиентов (в алфавитном порядке)</h3>
+<ul>
+    {% for client in clients_alpha %}
+        <li>{{ client.user.username }} - Телефон: {{ client.phone }}</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

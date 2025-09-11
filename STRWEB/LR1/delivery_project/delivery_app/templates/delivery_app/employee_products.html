@@ -1,0 +1,106 @@
+{% extends "delivery_app/base.html" %}
+
+{% block content %}
+<h2>Управление товарами</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+<h3>Товары</h3>
+<table border="1">
+    <tr>
+        <th>Название</th>
+        <th>Цена</th>
+        <th>Ед. измерения</th>
+        <th>Тип</th>
+        <th>Производитель</th>
+        <th>Действия</th>
+    </tr>
+    {% for product in products %}
+    <tr>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price|floatformat:2 }} BYN</td>
+        <td>{{ product.unit_of_measurement }}</td>
+        <td>{{ product.product_type.name }}</td>
+        <td>{{ product.manufacturer.name|default:"-" }}</td>
+        <td>
+            <form method="post" action="{% url 'delivery_app:employee_products' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="text" name="name" value="{{ product.name }}">
+                <input type="number" name="price" value="{{ product.price }}" step="0.01">
+                <input type="text" name="unit_of_measurement" value="{{ product.unit_of_measurement }}">
+                <select name="product_type">
+                    {% for type in product_types %}
+                        <option value="{{ type.id }}" {% if type.id == product.product_type.id %}selected{% endif %}>{{ type.name }}</option>
+                    {% endfor %}
+                </select>
+                <select name="manufacturer">
+                    <option value="">-</option>
+                    {% for manufacturer in manufacturers %}
+                        <option value="{{ manufacturer.id }}" {% if manufacturer.id == product.manufacturer.id %}selected{% endif %}>{{ manufacturer.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="action" value="update_product">
+                <button type="submit">Обновить</button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">Товаров нет.</td></tr>
+    {% endfor %}
+</table>
+
+<!-- Добавление нового товара -->
+<h3>Добавить товар</h3>
+<form method="post" action="{% url 'delivery_app:employee_products' %}">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Название">
+    <input type="number" name="price" placeholder="Цена" step="0.01">
+    <input type="text" name="unit_of_measurement" placeholder="Ед. измерения">
+    <select name="product_type">
+        <option value="">Выберите тип</option>
+        {% for type in product_types %}
+            <option value="{{ type.id }}">{{ type.name }}</option>
+        {% endfor %}
+    </select>
+    <select name="manufacturer">
+        <option value="">-</option>
+        {% for manufacturer in manufacturers %}
+            <option value="{{ manufacturer.id }}">{{ manufacturer.name }}</option>
+        {% endfor %}
+    </select>
+    <input type="hidden" name="action" value="update_product">
+    <button type="submit">Добавить</button>
+</form>
+
+<h3>Типы товаров</h3>
+<table border="1">
+    <tr>
+        <th>Название</th>
+        <th>Действия</th>
+    </tr>
+    {% for type in product_types %}
+    <tr>
+        <td>{{ type.name }}</td>
+        <td>
+            <form method="post" action="{% url 'delivery_app:employee_products' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_type_id" value="{{ type.id }}">
+                <input type="text" name="name" value="{{ type.name }}">
+                <input type="hidden" name="action" value="update_product_type">
+                <button type="submit">Обновить</button>
+            </form>
+        </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="2">Типов товаров нет.</td></tr>
+    {% endfor %}
+</table>
+
+<h3>Добавить тип товара</h3>
+<form method="post" action="{% url 'delivery_app:employee_products' %}">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Название типа">
+    <input type="hidden" name="action" value="update_product_type">
+    <button type="submit">Добавить</button>
+</form>
+{% endblock %}

@@ -1,0 +1,575 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+Новости о доставке продуктов и акциях
+{% endblock %}
+
+{% block meta_description %}
+Свежие новости и акции службы доставки продуктов. Узнайте первыми о новых товарах, специальных предложениях и изменениях в работе сервиса.
+{% endblock %}
+
+{% block content %}
+<div class="news-container">
+    <div class="page-header">
+        <h1>Новости и акции</h1>
+        <p class="page-subtitle">Будьте в курсе последних событий и специальных предложений</p>
+        <p class="current-date">Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+    </div>
+
+    <!-- Фильтры и поиск -->
+    <div class="news-filters">
+        <div class="search-box">
+            <input type="text" id="news-search" placeholder="Поиск по новостям..." class="search-input">
+            <button class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        <div class="filter-group">
+            <label>Сортировать по:</label>
+            <select id="sort-news">
+                <option value="newest">Сначала новые</option>
+                <option value="oldest">Сначала старые</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Список новостей -->
+    <div class="news-grid">
+        {% for article in articles %}
+        <article class="news-card" data-date="{{ article.published_date|date:'Y-m-d' }}">
+            <div class="news-image">
+                {% if article.image %}
+                    <img src="{{ article.image.url }}" alt="{{ article.title }}">
+                {% else %}
+                    <img src="{% static 'delivery_app/images/news-placeholder.jpg' %}" alt="{{ article.title }}">
+                {% endif %}
+                <div class="news-date">
+                    <span class="day">{{ article.published_date|date:"d" }}</span>
+                    <span class="month">{{ article.published_date|date:"M" }}</span>
+                </div>
+            </div>
+            
+            <div class="news-content">
+                <div class="news-meta">
+                    <span class="news-category">Новости</span>
+                    <span class="news-read-time">3 мин чтения</span>
+                </div>
+                
+                <h2 class="news-title">
+                    <a href="{% url 'delivery_app:news_detail' article.pk %}">{{ article.title }}</a>
+                </h2>
+                
+                <p class="news-summary">{{ article.summary }}</p>
+                
+                <div class="news-actions">
+                    <a href="{% url 'delivery_app:news_detail' article.pk %}" class="read-more">Читать далее</a>
+                    <div class="share-buttons">
+                        <button class="share-btn" data-url="{% url 'delivery_app:news_detail' article.pk %}" title="Поделиться в Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </button>
+                        <button class="share-btn" data-url="{% url 'delivery_app:news_detail' article.pk %}" title="Поделиться в Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                        <button class="share-btn" data-url="{% url 'delivery_app:news_detail' article.pk %}" title="Поделиться в VK">
+                            <i class="fab fa-vk"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <div class="no-news">
+            <div class="empty-state">
+                <img src="{% static 'delivery_app/images/empty-news.svg' %}" alt="Нет новостей">
+                <h3>Новостей пока нет</h3>
+                <p>Следите за обновлениями, скоро мы добавим интересные новости!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    {% if articles.has_other_pages %}
+    <div class="pagination">
+        {% if articles.has_previous %}
+        <a href="?page={{ articles.previous_page_number }}" class="page-link">
+            <i class="fas fa-chevron-left"></i> Назад
+        </a>
+        {% endif %}
+        
+        {% for i in articles.paginator.page_range %}
+            {% if articles.number == i %}
+            <span class="page-link current">{{ i }}</span>
+            {% elif i > articles.number|add:'-3' and i < articles.number|add:'3' %}
+            <a href="?page={{ i }}" class="page-link">{{ i }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if articles.has_next %}
+        <a href="?page={{ articles.next_page_number }}" class="page-link">
+            Вперед <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Подписка на новости -->
+    <div class="newsletter-section">
+        <div class="newsletter-content">
+            <h2>Подпишитесь на наши новости</h2>
+            <p>Получайте уведомления о новых акциях и специальных предложениях первыми</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Ваш email" required>
+                <button type="submit" class="btn btn-primary">Подписаться</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.news-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    color: #2c5aa0;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.current-date {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* Фильтры и поиск */
+.news-filters {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px 0 0 5px;
+    border-right: none;
+}
+
+.search-btn {
+    padding: 10px 15px;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-weight: 500;
+}
+
+#sort-news {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Сетка новостей */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.news-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.news-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.news-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.news-card:hover .news-image img {
+    transform: scale(1.05);
+}
+
+.news-date {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: #2c5aa0;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.news-date .day {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.news-date .month {
+    display: block;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.news-content {
+    padding: 20px;
+}
+
+.news-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.news-category {
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.news-title {
+    margin: 0 0 15px;
+    font-size: 1.3em;
+    line-height: 1.4;
+}
+
+.news-title a {
+    color: #2c5aa0;
+    text-decoration: none;
+}
+
+.news-title a:hover {
+    color: #1e3d6f;
+    text-decoration: underline;
+}
+
+.news-summary {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.news-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.read-more {
+    color: #2c5aa0;
+    font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.share-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.share-btn:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+/* Пустое состояние */
+.no-news {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.empty-state img {
+    max-width: 250px;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.page-link {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #2c5aa0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.page-link:hover {
+    background: #f8f9fa;
+}
+
+.page-link.current {
+    background: #2c5aa0;
+    color: white;
+    border-color: #2c5aa0;
+}
+
+/* Подписка на новости */
+.newsletter-section {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3d6f 100%);
+    border-radius: 10px;
+    padding: 40px;
+    color: white;
+    text-align: center;
+}
+
+.newsletter-content h2 {
+    margin: 0 0 15px;
+    font-size: 1.8em;
+}
+
+.newsletter-content p {
+    margin: 0 0 25px;
+    opacity: 0.9;
+}
+
+.newsletter-form {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+    gap: 10px;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+.newsletter-form button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .news-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        max-width: none;
+    }
+    
+    .news-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .news-actions {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .newsletter-form {
+        flex-direction: column;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .news-container {
+        padding: 15px;
+    }
+    
+    .news-filters {
+        padding: 15px;
+    }
+    
+    .news-content {
+        padding: 15px;
+    }
+    
+    .newsletter-section {
+        padding: 25px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Поиск по новостям
+    const searchInput = document.getElementById('news-search');
+    const newsCards = document.querySelectorAll('.news-card');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            
+            newsCards.forEach(card => {
+                const title = card.querySelector('.news-title').textContent.toLowerCase();
+                const summary = card.querySelector('.news-summary').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || summary.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Сортировка новостей
+    const sortSelect = document.getElementById('sort-news');
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            const sortBy = this.value;
+            const newsContainer = document.querySelector('.news-grid');
+            const newsItems = Array.from(newsCards);
+            
+            newsItems.sort((a, b) => {
+                const dateA = new Date(a.getAttribute('data-date'));
+                const dateB = new Date(b.getAttribute('data-date'));
+                
+                if (sortBy === 'newest') {
+                    return dateB - dateA;
+                } else {
+                    return dateA - dateB;
+                }
+            });
+            
+            // Очищаем контейнер и добавляем отсортированные элементы
+            newsContainer.innerHTML = '';
+            newsItems.forEach(item => {
+                newsContainer.appendChild(item);
+            });
+        });
+    }
+    
+    // Кнопки поделиться
+    const shareButtons = document.querySelectorAll('.share-btn');
+    
+    shareButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const url = this.getAttribute('data-url');
+            const fullUrl = window.location.origin + url;
+            
+            if (this.querySelector('.fa-facebook-f')) {
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`, '_blank');
+            } else if (this.querySelector('.fa-twitter')) {
+                window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}`, '_blank');
+            } else if (this.querySelector('.fa-vk')) {
+                window.open(`https://vk.com/share.php?url=${encodeURIComponent(fullUrl)}`, '_blank');
+            }
+        });
+    });
+    
+    // Подписка на рассылку
+    const newsletterForm = document.querySelector('.newsletter-form');
+    
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            
+            // Здесь будет код для отправки email на сервер
+            alert(`Спасибо за подписку! На адрес ${email} будут приходить наши новости.`);
+            this.reset();
+        });
+    }
+});
+</script>
+{% endblock %}

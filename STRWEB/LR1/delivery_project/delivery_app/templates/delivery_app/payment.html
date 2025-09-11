@@ -1,0 +1,37 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Оплата заказа
+{% endblock %}
+
+{% block content %}
+<h2>Оплата заказа #{{ order.id }}</h2>
+<p>Сумма к оплате: {{ order.total_cost }} BYN</p>
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label for="card_number">Номер карты:</label>
+        <input type="text" id="card_number" name="card_number" placeholder="0000 0000 0000 0000" required>
+    </div>
+    <div>
+        <label for="expiry_date">Срок действия:</label>
+        <input type="text" id="expiry_date" name="expiry_date" placeholder="MM/YY" required>
+    </div>
+    <div>
+        <label for="cvv">CVV:</label>
+        <input type="text" id="cvv" name="cvv" placeholder="123" required>
+    </div>
+    <button type="submit">Оплатить</button>
+</form>
+
+<p><a href="{% url 'delivery_app:order_detail' order.id %}">Вернуться к заказу</a></p>
+{% endblock %}

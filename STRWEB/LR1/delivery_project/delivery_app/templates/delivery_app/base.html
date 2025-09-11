@@ -1,0 +1,868 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Доставка продуктов - Быстро и удобно{% endblock %}</title>
+    <link rel="icon" href="{% static 'delivery_app/images/logo.png' %}" type="image/png">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{% static 'delivery_app/css/style.css' %}">
+    
+    <meta name="description" content="Служба доставки свежих продуктов. Быстрая доставка, качественные продукты, доступные цены.">
+    <meta name="keywords" content="доставка продуктов, продукты, еда, доставка, покупки онлайн">
+    <meta property="og:title" content="Доставка продуктов - Быстро и удобно">
+    <meta property="og:description" content="Служба доставки свежих продуктов. Быстрая доставка, качественные продукты, доступные цены.">
+    <meta property="og:image" content="{% static 'delivery_app/images/og-image.jpg' %}">
+    <meta property="og:url" content="http://127.0.0.1:8000">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Доставка продуктов",
+        "url": "http://127.0.0.1:8000",
+        "logo": "{% static 'delivery_app/images/logo.png' %}",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "+375-17-123-45-67",
+            "contactType": "Customer service"
+        },
+        "sameAs": [
+            "https://www.facebook.com/yourpage",
+            "https://www.instagram.com/yourprofile",
+            "https://twitter.com/yourprofile"
+        ]
+    }
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+       
+        :root {
+            --primary-color: #2c5aa0;
+            --secondary-color: #f8f9fa;
+            --accent-color: #28a745;
+            --text-color: #333;
+            --light-text: #6c757d;
+            --border-color: #e9ecef;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+        
+        a:hover {
+            color: #1e3d6f;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        /* Header */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-container {
+            max-width: 1400px; /* Увеличили максимальную ширину */
+            margin: 0 auto;
+            padding: 0 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px; /* Немного уменьшили высоту */
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .logo img {
+            height: 40px; /* Уменьшили логотип */
+            margin-right: 10px;
+        }
+        
+        .logo-text {
+            font-size: 1.3rem; /* Уменьшили текст логотипа */
+            font-weight: 700;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+        
+        /* Навигация */
+        .nav-desktop {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0; /* Позволяет контенту сжиматься */
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 12px; /* Уменьшили промежутки */
+            flex-wrap: wrap; /* Разрешаем перенос */
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px; /* Уменьшили отступы */
+            border-radius: 5px;
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 0.9rem; /* Уменьшили размер шрифта */
+            white-space: nowrap;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        .nav-icon {
+            font-size: 1rem; /* Уменьшили иконки */
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Уменьшили промежутки */
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar {
+            width: 35px; /* Уменьшили аватар */
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 10px;
+            min-width: 180px;
+            display: none;
+            z-index: 1000;
+            margin-top: 10px;
+        }
+        
+        .user-avatar:hover .user-dropdown {
+            display: block;
+        }
+        
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .user-dropdown a:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn {
+            padding: 6px 12px; /* Уменьшили кнопки */
+            border-radius: 5px;
+            font-weight: 500;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem; /* Уменьшили шрифт кнопок */
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #1e3d6f;
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .cart-count {
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+        
+        /* Мобильная навигация */
+        .mobile-menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 30px;
+            height: 25px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        
+        .mobile-menu-toggle span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .nav-mobile {
+            display: none;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: white;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 999;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .nav-mobile.active {
+            transform: translateX(0);
+        }
+        
+        .mobile-nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Основное содержимое */
+        main {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Уведомления */
+        .messages {
+            margin-bottom: 20px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* Футер */
+        footer {
+            background-color: #2c5aa0;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-section h3 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .social-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 1200px) {
+            .nav-menu {
+                gap: 8px;
+            }
+            
+            .nav-link {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+            
+            .logo-text {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .nav-desktop {
+                display: none;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .nav-mobile {
+                display: block;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                height: 60px;
+            }
+            
+            .logo img {
+                height: 35px;
+            }
+            
+            .logo-text {
+                font-size: 1rem;
+            }
+            
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-text {
+                display: none;
+            }
+        }
+        
+        /* Специальные классы для активной ссылки */
+        .active-link {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        /* Дополнительные стили для компактного меню */
+        .more-menu {
+            position: relative;
+        }
+        
+        .more-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 10px;
+            min-width: 180px;
+            display: none;
+            z-index: 1000;
+            margin-top: 10px;
+        }
+        
+        .more-menu:hover .more-dropdown {
+            display: block;
+        }
+        
+        .more-dropdown a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .more-dropdown a:hover {
+            background-color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <a href="{% url 'delivery_app:home' %}" class="logo">
+                <img src="{% static 'delivery_app/images/logo.png' %}" alt="Логотип доставки продуктов">
+                <span class="logo-text">Продуктовая доставка</span>
+            </a>
+            
+            <nav class="nav-desktop">
+                <ul class="nav-menu">
+                    <li><a href="{% url 'delivery_app:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <i class="fas fa-home nav-icon"></i> Главная
+                    </a></li>
+                    <li><a href="{% url 'delivery_app:about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+                        <i class="fas fa-info-circle nav-icon"></i> О компании
+                    </a></li>
+                    <li><a href="{% url 'delivery_app:product_list' %}" class="nav-link {% if request.resolver_match.url_name == 'product_list' %}active{% endif %}">
+                        <i class="fas fa-shopping-basket nav-icon"></i> Товары
+                    </a></li>
+                    <li><a href="{% url 'delivery_app:news' %}" class="nav-link {% if request.resolver_match.url_name == 'news' %}active{% endif %}">
+                        <i class="fas fa-newspaper nav-icon"></i> Новости
+                    </a></li>
+                    <li><a href="{% url 'delivery_app:promocodes' %}" class="nav-link {% if request.resolver_match.url_name == 'promocodes' %}active{% endif %}">
+                        <i class="fas fa-tag nav-icon"></i> Промокоды
+                    </a></li>
+                    
+                    <!-- Дополнительные пункты меню в выпадающем списке -->
+                    <li class="more-menu">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-ellipsis-h nav-icon"></i> Еще
+                        </a>
+                        <div class="more-dropdown">
+                            <a href="{% url 'delivery_app:faq' %}">
+                                <i class="fas fa-question-circle"></i> Словарь терминов
+                            </a>
+                            <a href="{% url 'delivery_app:contacts' %}">
+                                <i class="fas fa-phone"></i> Контакты
+                            </a>
+                            <a href="{% url 'delivery_app:privacy_policy' %}">
+                                <i class="fas fa-shield-alt"></i> Политика конфиденциальности
+                            </a>
+                            <a href="{% url 'delivery_app:vacancies' %}">
+                                <i class="fas fa-briefcase"></i> Вакансии
+                            </a>
+                            <a href="{% url 'delivery_app:reviews' %}">
+                                <i class="fas fa-star"></i> Отзывы
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+                
+                <div class="user-menu">
+                    <a href="{% url 'delivery_app:cart' %}" class="nav-link" title="Корзина" style="position: relative;">
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if user.is_authenticated and user.cart_items.count > 0 %}
+                        <span class="cart-count">{{ user.cart_items.count }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    {% if user.is_authenticated %}
+                    <div class="user-avatar" title="{{ user.username }}">
+                        {{ user.username|first|upper }}
+                        <div class="user-dropdown">
+                            <a href="{% url 'delivery_app:profile' %}">
+                                <i class="fas fa-user"></i> Профиль
+                            </a>
+                            <a href="{% url 'delivery_app:order_list' %}">
+                                <i class="fas fa-list-alt"></i> Мои заказы
+                            </a>
+                            {% if user.employee_profile or user.is_superuser %}
+                            <a href="{% url 'delivery_app:employee_panel' %}">
+                                <i class="fas fa-tachometer-alt"></i> Панель сотрудника
+                            </a>
+                            {% endif %}
+                            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                                {% csrf_token %}
+                                <button type="submit" style="background: none; border: none; text-align: left; width: 100%; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 5px; color: var(--text-color);">
+                                    <i class="fas fa-sign-out-alt"></i> Выйти
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'delivery_app:login' %}" class="btn btn-outline">Войти</a>
+                    <a href="{% url 'delivery_app:register' %}" class="btn btn-primary">Регистрация</a>
+                    {% endif %}
+                </div>
+            </nav>
+            
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+        
+        <nav class="nav-mobile" id="navMobile">
+            <ul class="mobile-nav-menu">
+                <li><a href="{% url 'delivery_app:home' %}" class="mobile-nav-link">
+                    <i class="fas fa-home"></i> Главная
+                </a></li>
+                <li><a href="{% url 'delivery_app:about' %}" class="mobile-nav-link">
+                    <i class="fas fa-info-circle"></i> О компании
+                </a></li>
+                <li><a href="{% url 'delivery_app:product_list' %}" class="mobile-nav-link">
+                    <i class="fas fa-shopping-basket"></i> Товары
+                </a></li>
+                <li><a href="{% url 'delivery_app:news' %}" class="mobile-nav-link">
+                    <i class="fas fa-newspaper"></i> Новости
+                </a></li>
+                <li><a href="{% url 'delivery_app:faq' %}" class="mobile-nav-link">
+                    <i class="fas fa-question-circle"></i> Словарь терминов
+                </a></li>
+                <li><a href="{% url 'delivery_app:contacts' %}" class="mobile-nav-link">
+                    <i class="fas fa-phone"></i> Контакты
+                </a></li>
+                <li><a href="{% url 'delivery_app:privacy_policy' %}" class="mobile-nav-link">
+                    <i class="fas fa-shield-alt"></i> Политика конфиденциальности
+                </a></li>
+                <li><a href="{% url 'delivery_app:vacancies' %}" class="mobile-nav-link">
+                    <i class="fas fa-briefcase"></i> Вакансии
+                </a></li>
+                <li><a href="{% url 'delivery_app:reviews' %}" class="mobile-nav-link">
+                    <i class="fas fa-star"></i> Отзывы
+                </a></li>
+                <li><a href="{% url 'delivery_app:promocodes' %}" class="mobile-nav-link">
+                    <i class="fas fa-tag"></i> Промокоды
+                </a></li>
+                <li><a href="{% url 'delivery_app:cart' %}" class="mobile-nav-link">
+                    <i class="fas fa-shopping-cart"></i> Корзина
+                    {% if user.is_authenticated and user.cart_items.count > 0 %}
+                    <span class="cart-count">{{ user.cart_items.count }}</span>
+                    {% endif %}
+                </a></li>
+                
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'delivery_app:profile' %}" class="mobile-nav-link">
+                    <i class="fas fa-user"></i> Профиль
+                </a></li>
+                <li><a href="{% url 'delivery_app:order_list' %}" class="mobile-nav-link">
+                    <i class="fas fa-list-alt"></i> Мои заказы
+                </a></li>
+                {% if user.employee_profile or user.is_superuser %}
+                <li><a href="{% url 'delivery_app:employee_panel' %}" class="mobile-nav-link">
+                    <i class="fas fa-tachometer-alt"></i> Панель сотрудника
+                </a></li>
+                {% endif %}
+                <li>
+                    <form method="post" action="{% url 'logout' %}" class="logout-form">
+                        {% csrf_token %}
+                        <button type="submit" class="mobile-nav-link" style="width: 100%; text-align: left; background: none; border: none;">
+                            <i class="fas fa-sign-out-alt"></i> Выйти
+                        </button>
+                    </form>
+                </li>
+                {% else %}
+                <li><a href="{% url 'delivery_app:login' %}" class="mobile-nav-link">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </a></li>
+                <li><a href="{% url 'delivery_app:register' %}" class="mobile-nav-link">
+                    <i class="fas fa-user-plus"></i> Регистрация
+                </a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Блок для уведомлений -->
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas 
+                        {% if message.tags == 'success' %}fa-check-circle
+                        {% elif message.tags == 'error' %}fa-exclamation-circle
+                        {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                        {% else %}fa-info-circle{% endif %}">
+                    </i>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Основное содержимое страницы -->
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>О компании</h3>
+                <p>Мы доставляем свежие продукты прямо к вашей двери. Быстро, удобно и надежно.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Полезные ссылки</h3>
+                <div class="footer-links">
+                    <a href="{% url 'delivery_app:about' %}"><i class="fas fa-chevron-right"></i> О компании</a>
+                    <a href="{% url 'delivery_app:news' %}"><i class="fas fa-chevron-right"></i> Новости</a>
+                    <a href="{% url 'delivery_app:vacancies' %}"><i class="fas fa-chevron-right"></i> Вакансии</a>
+                    <a href="{% url 'delivery_app:faq' %}"><i class="fas fa-chevron-right"></i> Словарь терминов</a>
+                    <a href="{% url 'delivery_app:privacy_policy' %}"><i class="fas fa-chevron-right"></i> Политика конфиденциальности</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>г. Минск, ул. Примерная, 15</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>+375 (17) 123-45-67</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>info@product-delivery.by</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Пн-Пт: 8:00-22:00, Сб-Вс: 9:00-20:00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Подписка на новости</h3>
+                <p>Подпишитесь на нашу рассылку, чтобы первыми узнавать об акциях и новинках.</p>
+                <form class="subscribe-form">
+                    <input type="email" placeholder="Ваш email" required>
+                    <button type="submit" class="btn btn-primary">Подписаться</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 Продуктовая доставка. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Мобильное меню
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const navMobile = document.getElementById('navMobile');
+        
+        mobileMenuToggle.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMobile.classList.toggle('active');
+            document.body.classList.toggle('no-scroll');
+        });
+        
+        // Закрытие мобильного меню при клике на ссылку
+        const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenuToggle.classList.remove('active');
+                navMobile.classList.remove('active');
+                document.body.classList.remove('no-scroll');
+            });
+        });
+        
+        // Подсветка активной ссылки
+        const currentUrl = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === currentUrl) {
+                link.classList.add('active-link');
+            }
+        });
+        
+        // Обработка форм
+        const logoutForms = document.querySelectorAll('.logout-form');
+        logoutForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Вы уверены, что хотите выйти?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Инициализация инструментов
+        document.addEventListener('DOMContentLoaded', function() {
+            // Здесь можно инициализировать дополнительные скрипты
+            console.log('Сайт загружен!');
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

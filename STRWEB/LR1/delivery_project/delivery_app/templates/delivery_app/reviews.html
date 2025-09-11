@@ -1,0 +1,697 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+Отзывы о нашей службе доставки
+{% endblock %}
+
+{% block content %}
+<div class="reviews-container">
+    <div class="page-header">
+        <h1>Отзывы наших клиентов</h1>
+        <p class="page-subtitle">Мы ценим мнение каждого клиента и постоянно работаем над улучшением нашего сервиса</p>
+        <p class="current-date">Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+    </div>
+
+    <!-- Статистика отзывов -->
+    <div class="reviews-stats">
+        <div class="stats-card">
+            <div class="stats-icon">⭐</div>
+            <div class="stats-content">
+                <h3>{{ average_rating|default:"5.0" }}/5</h3>
+                <p>Средняя оценка</p>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-icon">💬</div>
+            <div class="stats-content">
+                <h3>{{ reviews.count }}</h3>
+                <p>Всего отзывов</p>
+            </div>
+        </div>
+        <div class="stats-card">
+            <div class="stats-icon">😊</div>
+            <div class="stats-content">
+                <h3>{{ positive_reviews }}+</h3>
+                <p>Положительных отзывов</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка добавления отзыва -->
+    <div class="add-review-section">
+        {% if user.is_authenticated %}
+            <button class="btn btn-primary btn-large" id="showReviewForm">
+                <i class="fas fa-plus"></i> Добавить отзыв
+            </button>
+        {% else %}
+            <div class="auth-required">
+                <p>Чтобы оставить отзыв, пожалуйста, авторизуйтесь</p>
+                <div class="auth-buttons">
+                    <a href="{% url 'delivery_app:login' %}?next={{ request.path }}" class="btn btn-primary">Войти</a>
+                    <a href="{% url 'delivery_app:register' %}?next={{ request.path }}" class="btn btn-outline">Регистрация</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Форма добавления отзыва (скрыта по умолчанию) -->
+    {% if user.is_authenticated %}
+    <div class="review-form-container" id="reviewFormContainer" style="display: none;">
+        <div class="review-form">
+            <h3>Оставьте ваш отзыв</h3>
+            <form method="post" action="{% url 'delivery_app:add_review' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Ваша оценка</label>
+                    <div class="rating-stars">
+                        <input type="radio" id="star5" name="rating" value="5" />
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4" />
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" checked />
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2" />
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1" />
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="reviewText">Текст отзыва</label>
+                    <textarea id="reviewText" name="text" rows="5" placeholder="Поделитесь вашим опытом..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reviewProduct">Отзыв о товаре (необязательно)</label>
+                    <select id="reviewProduct" name="product">
+                        <option value="">Общий отзыв о службе доставки</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelReview">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Отправить отзыв</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Фильтры и сортировка -->
+    <div class="reviews-filters">
+        <div class="filter-group">
+            <label>Сортировать по:</label>
+            <select id="sortReviews">
+                <option value="newest">Сначала новые</option>
+                <option value="oldest">Сначала старые</option>
+                <option value="highest">Высокий рейтинг</option>
+                <option value="lowest">Низкий рейтинг</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Фильтр по оценке:</label>
+            <div class="rating-filter">
+                <button class="filter-btn active" data-rating="all">Все</button>
+                <button class="filter-btn" data-rating="5">5★</button>
+                <button class="filter-btn" data-rating="4">4★</button>
+                <button class="filter-btn" data-rating="3">3★</button>
+                <button class="filter-btn" data-rating="2">2★</button>
+                <button class="filter-btn" data-rating="1">1★</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список отзывов -->
+    <div class="reviews-list">
+        {% for review in reviews %}
+        <div class="review-card" data-rating="{{ review.rating }}">
+            <div class="review-header">
+                <div class="reviewer-info">
+                    <div class="reviewer-avatar">
+                        {{ review.user.username|first|upper }}
+                    </div>
+                    <div class="reviewer-details">
+                        <h4>{{ review.user.username }}</h4>
+                        <span class="review-date">{{ review.created_date|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+                <div class="review-rating">
+                    {% for i in "12345" %}
+                    <span class="star{% if forloop.counter <= review.rating %} filled{% endif %}">★</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="review-content">
+                <p>{{ review.text }}</p>
+            </div>
+            
+            {% if review.product %}
+            <div class="review-product">
+                <span>Отзыв о товаре:</span>
+                <a href="{% url 'delivery_app:product_detail' review.product.id %}">{{ review.product.name }}</a>
+            </div>
+            {% endif %}
+            
+            <div class="review-helpful">
+                <span>Отзыв полезен?</span>
+                <button class="helpful-btn" data-review-id="{{ review.id }}">
+                    <i class="fas fa-thumbs-up"></i> Да
+                    <span class="helpful-count">{% if review.helpful_count %}{{ review.helpful_count }}{% else %}0{% endif %}</span>
+                </button>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-reviews">
+            <div class="empty-state">
+                <img src="{% static 'delivery_app/images/empty-reviews.svg' %}" alt="Нет отзывов">
+                <h3>Отзывов пока нет</h3>
+                <p>Будьте первым, кто оставит отзыв о нашей службе доставки!</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Пагинация -->
+    {% if reviews.has_other_pages %}
+    <div class="pagination">
+        {% if reviews.has_previous %}
+        <a href="?page={{ reviews.previous_page_number }}" class="page-link">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for i in reviews.paginator.page_range %}
+        {% if reviews.number == i %}
+        <span class="page-link current">{{ i }}</span>
+        {% else %}
+        <a href="?page={{ i }}" class="page-link">{{ i }}</a>
+        {% endif %}
+        {% endfor %}
+        
+        {% if reviews.has_next %}
+        <a href="?page={{ reviews.next_page_number }}" class="page-link">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.reviews-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.page-header h1 {
+    color: #2c5aa0;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    color: #6c757d;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+}
+
+.current-date {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* Статистика */
+.reviews-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stats-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stats-icon {
+    font-size: 2em;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 50%;
+}
+
+.stats-content h3 {
+    margin: 0;
+    color: #2c5aa0;
+    font-size: 1.8em;
+}
+
+.stats-content p {
+    margin: 5px 0 0;
+    color: #6c757d;
+}
+
+/* Кнопка добавления отзыва */
+.add-review-section {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.auth-required p {
+    margin-bottom: 15px;
+    color: #6c757d;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* Форма отзыва */
+.review-form-container {
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.review-form h3 {
+    margin-top: 0;
+    color: #2c5aa0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.rating-stars input {
+    display: none;
+}
+
+.rating-stars label {
+    font-size: 2em;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-right: 5px;
+}
+
+.rating-stars input:checked ~ label,
+.rating-stars label:hover,
+.rating-stars label:hover ~ label {
+    color: #ffc107;
+}
+
+.rating-stars input:checked + label {
+    color: #ffc107;
+}
+
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    transition: border-color 0.3s;
+}
+
+select:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* Фильтры */
+.reviews-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-weight: 500;
+}
+
+#sortReviews {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.rating-filter {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: #2c5aa0;
+    color: white;
+    border-color: #2c5aa0;
+}
+
+/* Список отзывов */
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.review-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.reviewer-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #2c5aa0;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.reviewer-details h4 {
+    margin: 0 0 5px;
+    color: #2c5aa0;
+}
+
+.review-date {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.review-rating {
+    display: flex;
+    gap: 2px;
+}
+
+.star {
+    color: #ddd;
+    font-size: 1.2em;
+}
+
+.star.filled {
+    color: #ffc107;
+}
+
+.review-content {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.review-product {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+}
+
+.review-product a {
+    color: #2c5aa0;
+    font-weight: 500;
+}
+
+.review-helpful {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.review-helpful span {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.helpful-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.helpful-btn:hover {
+    background: #e9ecef;
+}
+
+.helpful-count {
+    background: #2c5aa0;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 0.8em;
+}
+
+/* Пустой состояние */
+.no-reviews {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.empty-state img {
+    max-width: 200px;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+/* Пагинация */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 30px;
+}
+
+.page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #2c5aa0;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.page-link:hover {
+    background: #f8f9fa;
+}
+
+.page-link.current {
+    background: #2c5aa0;
+    color: white;
+    border-color: #2c5aa0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .reviews-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .reviews-filters {
+        flex-direction: column;
+    }
+    
+    .auth-buttons {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Показать/скрыть форму отзыва
+    const showReviewFormBtn = document.getElementById('showReviewForm');
+    const reviewFormContainer = document.getElementById('reviewFormContainer');
+    const cancelReviewBtn = document.getElementById('cancelReview');
+    
+    if (showReviewFormBtn && reviewFormContainer) {
+        showReviewFormBtn.addEventListener('click', function() {
+            reviewFormContainer.style.display = 'block';
+            showReviewFormBtn.style.display = 'none';
+        });
+    }
+    
+    if (cancelReviewBtn && reviewFormContainer) {
+        cancelReviewBtn.addEventListener('click', function() {
+            reviewFormContainer.style.display = 'none';
+            if (showReviewFormBtn) showReviewFormBtn.style.display = 'block';
+        });
+    }
+    
+    // Фильтрация по рейтингу
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const reviewCards = document.querySelectorAll('.review-card');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Убрать активный класс со всех кнопок
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Добавить активный класс к текущей кнопке
+            this.classList.add('active');
+            
+            const rating = this.getAttribute('data-rating');
+            
+            // Показать/скрыть отзывы в зависимости от рейтинга
+            reviewCards.forEach(card => {
+                if (rating === 'all' || card.getAttribute('data-rating') === rating) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Сортировка отзывов
+    const sortSelect = document.getElementById('sortReviews');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            // Здесь будет логика сортировки (обычно через перезагрузку страницы с параметрами)
+            const sortBy = this.value;
+            window.location.href = `?sort=${sortBy}`;
+        });
+    }
+    
+    // Обработка кнопки "Отзыв полезен"
+    const helpfulButtons = document.querySelectorAll('.helpful-btn');
+    helpfulButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const reviewId = this.getAttribute('data-review-id');
+            const countElement = this.querySelector('.helpful-count');
+            
+            // Имитация отправки запроса на сервер
+            this.disabled = true;
+            this.style.opacity = '0.7';
+            
+            // В реальном приложении здесь будет AJAX-запрос к серверу
+            setTimeout(() => {
+                let count = parseInt(countElement.textContent);
+                count++;
+                countElement.textContent = count;
+                
+                // Восстанавливаем кнопку после "отправки"
+                this.innerHTML = '<i class="fas fa-check"></i> Спасибо за ваш голос!';
+            }, 500);
+        });
+    });
+});
+</script>
+{% endblock %}

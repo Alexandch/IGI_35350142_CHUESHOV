@@ -1,0 +1,43 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Профиль
+{% endblock %}
+
+{% block content %}
+<h2>Профиль</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+{% if country_info %}
+    <p>Информация о стране: {{ country_info.name.common }} (Столица: {{ country_info.capital.0 }})</p>
+{% endif %}
+
+{% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <button type="submit">Сохранить</button>
+</form>
+
+<h3>Календарь на {{ current_date|slice:"3:10" }}</h3>
+<table border="1">
+    {% for week in calendar %}
+    <tr>
+        {% for day in week %}
+        <td{% if day == 0 %} class="empty"{% endif %}>
+            {{ day|default:"" }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

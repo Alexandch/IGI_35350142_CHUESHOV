@@ -1,0 +1,115 @@
+{% extends "delivery_app/base.html" %}
+
+{% block title %}
+Корзина
+{% endblock %}
+
+{% block content %}
+<h2>Ваша корзина</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if cart_items %}
+    <form method="post" action="{% url 'delivery_app:update_cart' %}">
+        {% csrf_token %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Цена за единицу</th>
+                    <th>Количество</th>
+                    <th>Общая стоимость</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.price }} BYN</td>
+                    <td>
+                        <div class="quantity-control">
+                            <button type="button" class="btn-decrease" data-id="{{ item.id }}">-</button>
+                            <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" class="quantity-input">
+                            <button type="button" class="btn-increase" data-id="{{ item.id }}">+</button>
+                        </div>
+                    </td>
+                    <td class="total-price">{{ item.total_price }} BYN</td>
+                    <td>
+                        <a href="{% url 'delivery_app:remove_from_cart' item.id %}" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот товар?')">Удалить</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="cart-summary">
+            <p><strong>Итого:</strong> <span class="total-cart-price">{{ total_price }} BYN</span></p>
+            <button type="submit" class="btn btn-primary">Обновить корзину</button>
+            <a href="{% url 'delivery_app:checkout' %}" class="btn btn-success">Оформить заказ</a>
+        </div>
+    </form>
+{% else %}
+    <p class="empty-cart">Ваша корзина пуста.</p>
+{% endif %}
+
+<h3>Календарь на {{ current_date|slice:"3:10" }}</h3>
+<table class="calendar-table">
+    {% for week in calendar %}
+    <tr>
+        {% for day in week %}
+        <td{% if day == 0 %} class="empty"{% endif %}>
+            {{ day|default:"" }}
+        </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+<script>
+    document.querySelectorAll('.btn-increase').forEach(button => {
+        button.addEventListener('click', function() {
+            let input = this.parentElement.querySelector('.quantity-input');
+            let newValue = parseInt(input.value) + 1;
+            input.value = newValue;
+            updateTotalPrice(this.closest('tr'), newValue);
+        });
+    });
+
+    document.querySelectorAll('.btn-decrease').forEach(button => {
+        button.addEventListener('click', function() {
+            let input = this.parentElement.querySelector('.quantity-input');
+            let newValue = parseInt(input.value) - 1;
+            if (newValue >= 1) {
+                input.value = newValue;
+                updateTotalPrice(this.closest('tr'), newValue);
+            }
+        });
+    });
+
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            if (this.value < 1) this.value = 1;
+            updateTotalPrice(this.closest('tr'), this.value);
+        });
+    });
+
+    function updateTotalPrice(row, quantity) {
+        let price = parseFloat(row.cells[1].textContent);
+        let totalCell = row.cells[3];
+        totalCell.textContent = (price * quantity).toFixed(2) + ' BYN';
+
+        let totalCartPrice = 0;
+        document.querySelectorAll('.cart-table tbody tr').forEach(row => {
+            totalCartPrice += parseFloat(row.cells[3].textContent);
+        });
+        document.querySelector('.total-cart-price').textContent = totalCartPrice.toFixed(2) + ' BYN';
+    }
+</script>
+{% endblock %}

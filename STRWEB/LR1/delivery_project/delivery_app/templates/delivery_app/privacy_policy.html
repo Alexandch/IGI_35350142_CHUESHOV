@@ -1,0 +1,40 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+Политика конфиденциальности
+{% endblock %}
+
+{% block content %}
+<h2>Политика конфиденциальности</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+<p>Последнее обновление: {% firstof sections.0.last_updated|date:"d.m.Y" current_date %}</p>
+
+<div class="privacy-policy">
+    {% for section in sections %}
+    <div class="policy-section">
+        <h3>{{ forloop.counter }}. {{ section.title }}</h3>
+        <div class="policy-content">
+            {{ section.content|linebreaks }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+.policy-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.policy-section:last-child {
+    border-bottom: none;
+}
+
+.policy-content {
+    margin-top: 15px;
+    line-height: 1.6;
+}
+</style>
+{% endblock %}

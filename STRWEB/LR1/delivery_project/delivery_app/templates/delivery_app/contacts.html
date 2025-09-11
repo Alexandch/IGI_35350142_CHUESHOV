@@ -1,0 +1,22 @@
+{% extends "delivery_app/base.html" %}
+{% load static %}
+
+{% block title %}
+Контакты
+{% endblock %}
+
+{% block content %}
+<h2>Контакты</h2>
+<p>Дата: {{ current_date }} | Временная зона: {{ timezone }}</p>
+{% for employee in employees %}
+    <h2>{{ employee.user.username }}</h2>
+    <p><strong>Должность:</strong> {{ employee.position }}</p>
+    <p><strong>Телефон:</strong> {{ employee.phone|default:"Не указан" }}</p>
+    <p><strong>Email:</strong> {{ employee.user.email|default:"Не указан" }}</p>
+    {% if employee.photo %}
+        <img src="{{ employee.photo.url }}" alt="{{ employee.user.username }}" class="employee-photo" style="max-width: 300px;">
+    {% endif %}
+{% empty %}
+    <p>Сотрудников пока нет.</p>
+{% endfor %}
+{% endblock %}
